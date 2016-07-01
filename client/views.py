@@ -7,7 +7,8 @@ import opentracing
 
 import urllib2
 
-tracer = settings.TRACER
+tracer = settings.OPENTRACING['TRACER']
+
 # Create your views here.
 
 def client_index(request):

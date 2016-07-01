@@ -21,7 +21,7 @@ def trace(view_func):
 	the request
 
 	'''
-	if hasattr(settings, 'TRACER'):
+	if hasattr(settings, 'OPENTRACING'):
 		def wrapper(request):
 			return view_func(request)
 		wrapper.__name__ = trace_identififier + view_func.__name__
@@ -67,15 +67,15 @@ class OpenTracingMiddleware(object):
 		package __init__ file? Or could also require a tracer file.
 		'''
 		try:
-			self.tracer = settings.TRACER 
+			self.tracer = settings.OPENTRACING['TRACER'] 
 		except:
 			self.tracer = opentracing.Tracer()
 
 	def process_view(self, request, view_func, view_args, view_kwargs):
-		if hasattr(settings, 'TRACING'):
-			is_tracing = settings.TRACING
+		if hasattr(settings, 'OPENTRACING'):
+			is_tracing = settings.OPENTRACING.get('TRACING', True)
 		else:
-			is_tracing = True
+			is_tracing = False
 		if not view_func.__name__.startswith(trace_identififier) or not is_tracing:
 			return None
 
@@ -94,6 +94,12 @@ class OpenTracingMiddleware(object):
 			span = self.tracer.tracer.start_span(operation_name)
 		
 		self.tracer.current_spans[request] = span
+
+		if hasattr(settings, 'OPENTRACING'):
+			for attr in settings.OPENTRACING.get('TRACED_REQUEST_ATTRIBUTES', []):
+				if hasattr(request, attr):
+					payload = str(getattr(request, attr))
+					span.set_tag(attr, payload)
 
 	def process_response(self, request, response):
 		try:

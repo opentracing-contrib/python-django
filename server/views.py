@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from django_opentracing import trace
 from django.conf import settings
 
-tracer = settings.TRACER
+tracer = settings.OPENTRACING['TRACER']
+
 # Create your views here.
 
 def server_index(request):

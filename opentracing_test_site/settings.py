@@ -114,6 +114,10 @@ STATIC_URL = '/static/'
 
 # Tracing settings
 
-TRACING = True
-TRACER = DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lightstep_token}"))
+OPENTRACING = {
+    'TRACING' : True,
+    'TRACER' : DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lighstep_token}")),
+    'TRACED_REQUEST_ATTRIBUTES' : ['META']
+}
+
 
