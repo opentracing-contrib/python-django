@@ -11,8 +11,12 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+
+import sys
+sys.path.append("../")
+
 import lightstep.tracer
-from django_opentracing import DjangoTracer
+import django_opentracing
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,7 +57,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'opentracing_test_site.urls'
+ROOT_URLCONF = 'example_site.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'opentracing_test_site.wsgi.application'
+WSGI_APPLICATION = 'example_site.wsgi.application'
 
 
 # Password validation
@@ -112,12 +116,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Tracing settings
+# OpenTracing settings
 
 OPENTRACING = {
-    'TRACING' : True,
-    'TRACER' : DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lighstep_token}")),
-    'TRACED_REQUEST_ATTRIBUTES' : ['META']
+    'TRACING': True, # default is true
+    'TRACER': django_opentracing.DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lightstep_token}")), # default is opentracing nulltracer
+    'TRACED_REQUEST_ATTRIBUTES': ['META'], # default is none
+    'TRACE_ALL_REQUESTS': False, # default is false
+    # 'TRACE_SINGLE_REQUESTS' = False # this would be for decorator fn's overriding trace_all_requests (to be able to trace individual attributes)
 }
 
 
