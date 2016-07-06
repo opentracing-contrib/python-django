@@ -25,7 +25,7 @@ class DjangoTracer(object):
         the trace can be continued across the wire.
         '''
         text_carrier = {}
-        self.tracer.inject(span, opentracing.Format.TEXT_MAP, text_carrier)
+        self.tracer.inject(span.context, opentracing.Format.TEXT_MAP, text_carrier)
         for k, v in text_carrier.iteritems():
             request.add_header(k,v)
 
@@ -66,14 +66,15 @@ class DjangoTracer(object):
             if k.startswith('http-'):
                 k = k[5:]
             headers[k] = v              
-        span = None
 
         # start new span from trace info
+        span = None
         operation_name = view_func.__name__
         try:
-            span = self.tracer.join(operation_name, opentracing.Format.TEXT_MAP, headers)
-        except (opentracing.InvalidCarrierException, opentracing.TraceCorruptedException):
-            span = self.tracer.start_span(operation_name)
+            span_ctx = self.tracer.extract(operation_name, opentracing.Format.TEXT_MAP, headers)
+            span = self.tracer.start_span(operation_name=operation_name, references=opentracing.ChildOf(span_ctx))
+        except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
+            span = self.tracer.start_span(operation_name=operation_name, tags={"Extract failed": str(e)})
         if span is None:
             span = self.tracer.start_span(operation_name)
 

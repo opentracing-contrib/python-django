@@ -13,7 +13,6 @@ import django_opentracing
 # OpenTracing settings
 
 OPENTRACING = {
-    'TRACING': True, # if not included, defaults to True
     'TRACER': django_opentracing.DjangoTracer(some_opentracing_tracer), # you can use any valid opentracing tracer implementation
     'TRACE_ALL_REQUESTS': False, # if not included, defaults to False
     'TRACED_REQUEST_ATTRIBUTES': [], # only valid if tracing all requests

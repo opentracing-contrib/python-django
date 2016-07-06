@@ -22,8 +22,7 @@ class OpenTracingMiddleware(object):
         # through decorator functions rather than middleware
         if not hasattr(settings, 'OPENTRACING'):
             return None
-        is_tracing = settings.OPENTRACING.get('TRACING', True)
-        if not (is_tracing and settings.OPENTRACING['TRACE_ALL_REQUESTS']):
+        if not settings.OPENTRACING['TRACE_ALL_REQUESTS']:
             return None
 
         self.tracer._apply_tracing(request, view_func, settings.OPENTRACING.get('TRACED_REQUEST_ATTRIBUTES', []))
