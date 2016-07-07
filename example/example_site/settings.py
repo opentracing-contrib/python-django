@@ -12,9 +12,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
-import sys
-sys.path.append("../")
-
 import lightstep.tracer
 import django_opentracing
 
@@ -118,11 +115,13 @@ STATIC_URL = '/static/'
 
 # OpenTracing settings
 
-OPENTRACING = {
-    'TRACER': django_opentracing.DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lightstep_token}")), # default is opentracing.Tracer(), which does nothing
-    'TRACED_REQUEST_ATTRIBUTES': ['META'], # default is none
-    'TRACE_ALL_REQUESTS': False, # default is false
-    # 'TRACE_SINGLE_REQUESTS' = False # this would be for decorator fn's overriding trace_all_requests (to be able to trace individual attributes)
-}
+# default tracer is opentracing.Tracer(), which does nothing
+OPENTRACING_TRACER = django_opentracing.DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lightstep_token}"))
+
+# default is False
+OPENTRACING_TRACE_ALL = False 
+
+# default is []
+OPENTRACING_TRACED_ATTRIBUTES = ['META']
 
 

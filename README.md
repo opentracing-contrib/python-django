@@ -2,6 +2,14 @@
 
 This is an extension for Django that provides support for OpenTracing. In order to use this package, ensure that have `opentracing` installed and are able to instantiate some implementation of an OpenTracing tracer. 
 
+## Installation
+
+Run the following command:
+
+```
+$ pip install Django-OpenTracing
+```
+
 ## Setting up Tracing
 
 In order to implement tracing in your system, add the following lines of code to your site's settings.py file:
@@ -12,18 +20,16 @@ import django_opentracing
 
 # OpenTracing settings
 
-OPENTRACING = {
-    'TRACER': django_opentracing.DjangoTracer(some_opentracing_tracer), # you can use any valid opentracing tracer implementation
-    'TRACE_ALL_REQUESTS': False, # if not included, defaults to False
-    'TRACED_REQUEST_ATTRIBUTES': [], # only valid if tracing all requests
-}
+OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer), # you can use any valid opentracing tracer implementation
+OPENTRACING_TRACE_ALL = False, # if not included, defaults to False
+OPENTRACING_TRACED_ATTRIBUTES = [] # only valid if tracing all requests
 ```
 
 Note: Valid request attributes to trace are listed [here](https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpRequest). When you trace an attribute, this means that created spans will have tags with the attribute name and the request's value.
 
 ## Tracing All Requests
 
-In order to trace all requests, set `'TRACE_ALL_REQUESTS': True`. If you want to trace any attributes for all requests, then add them to `'TRACED_REQUEST_ATTRIBUTES'`. For example, if you wanted to trace the path and method, then set `'TRACED_REQUEST_ATTRIBUTES': ['path', 'method']`.
+In order to trace all requests, set `OPENTRACING_TRACE_ALL = True`. If you want to trace any attributes for all requests, then add them to `OPENTRACING_TRACED_ATTRIBUTES`. For example, if you wanted to trace the path and method, then set `OPENTRACING_TRACED_ATTRIBUTES = ['path', 'method']`.
 
 Tracing all requests uses the middleware django_opentracing.OpenTracingMiddleware, so add this to your settings.py file's `MIDDLEWARE_CLASSES` at the top of the stack.
 
@@ -42,7 +48,7 @@ If you don't want to trace all requests to your site, then you can use function 
 ```python
 from django.conf import settings
 
-tracer = settings.OPENTRACING['TRACER']
+tracer = settings.OPENTRACING_TRACER
 
 @tracer.trace(optional_args)
 def some_view_func(request):
@@ -52,7 +58,7 @@ This tracing method doesn't use middleware, so there's no need to add it to your
 
 The optional arguments allow for tracing of request attributes. For example, if you want to trace metadata, you could pass in `@tracer.trace('META')` and request.META would be set as a tag on all spans for this view function.
 
-Note: If you turn on `TRACE_ALL_REQUESTS`, this decorator will be ignored, including any traced request attributes. 
+Note: If you turn on `OPENTRACING_TRACE_ALL`, this decorator will be ignored, including any traced request attributes. 
 
 ## Accessing Spans Manually
 
@@ -67,8 +73,15 @@ If you want to make an RPC and continue an existing trace, you can inject the cu
 def some_view_func(request):
     new_request = some_http_request
     current_span = tracer.get_span(request)
-    tracer.inject_as_headers(current_span, new_request)
+    text_carrier = {}
+    opentracing_tracer.inject(span, opentracing.Format.TEXT_MAP, text_carrier)
+    for k, v in text_carrier.iteritems():
+        request.add_header(k,v)
     ... # make request
 ```
-Note: `DjangoTracer.inject_as_headers(span, request)` is a convenience method that injects the span into an http request's headers`.
+
+## Example
+
+See the examples folder to view and run an example of a Django application that acts as both a client and server,
+with integrated OpenTracing tracers.
 

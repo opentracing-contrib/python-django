@@ -7,27 +7,15 @@ class DjangoTracer(object):
     to trace requests using this DjangoTracer
     '''
     def __init__(self, tracer):
-        self.tracer = tracer
-        self.current_spans = {}
+        self._tracer = tracer
+        self._current_spans = {}
 
     def get_span(self, request): 
         '''
         @param request 
         Returns the span tracing this request
         '''
-        return self.current_spans.get(request, None)
-
-    def inject_as_headers(self, span, request):
-        '''
-        @param span
-        @param request
-        Injects the span as headers into the request so that 
-        the trace can be continued across the wire.
-        '''
-        text_carrier = {}
-        self.tracer.inject(span.context, opentracing.Format.TEXT_MAP, text_carrier)
-        for k, v in text_carrier.iteritems():
-            request.add_header(k,v)
+        return self._current_spans.get(request, None)
 
     def trace(self, *attributes):
         '''
@@ -41,7 +29,7 @@ class DjangoTracer(object):
             # TODO: do we want to provide option of overriding trace_all_requests so that they 
             # can trace certain attributes of the request for just this request (this would require
             # to reinstate the name-mangling with a trace identifier, and another settings key)
-            if hasattr(settings, 'OPENTRACING') and settings.OPENTRACING.get('TRACE_ALL_REQUESTS', False):
+            if settings.OPENTRACING_TRACE_ALL:
                 return view_func
             # otherwise, execute decorator
             def wrapper(request):
@@ -71,15 +59,15 @@ class DjangoTracer(object):
         span = None
         operation_name = view_func.__name__
         try:
-            span_ctx = self.tracer.extract(operation_name, opentracing.Format.TEXT_MAP, headers)
-            span = self.tracer.start_span(operation_name=operation_name, references=opentracing.ChildOf(span_ctx))
+            span_ctx = self._tracer.extract(opentracing.Format.TEXT_MAP, headers)
+            span = self._tracer.start_span(operation_name=operation_name, references=opentracing.ChildOf(span_ctx))
         except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
-            span = self.tracer.start_span(operation_name=operation_name, tags={"Extract failed": str(e)})
+            span = self._tracer.start_span(operation_name=operation_name, tags={"Extract failed": str(e)})
         if span is None:
-            span = self.tracer.start_span(operation_name)
+            span = self._tracer.start_span(operation_name)
 
         # add span to current spans 
-        self.current_spans[request] = span
+        self._current_spans[request] = span
 
         # log any traced attributes
         for attr in attributes:
@@ -91,6 +79,6 @@ class DjangoTracer(object):
         return span  
 
     def _finish_tracing(self, request):
-        span = self.current_spans.pop(request, None)     
+        span = self._current_spans.pop(request, None)     
         if span is not None:
             span.finish()
