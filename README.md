@@ -20,9 +20,15 @@ import django_opentracing
 
 # OpenTracing settings
 
-OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer), # you can use any valid opentracing tracer implementation
-OPENTRACING_TRACE_ALL = False, # if not included, defaults to False
-OPENTRACING_TRACED_ATTRIBUTES = [] # only valid if tracing all requests
+# some_opentracing_tracer can be any valid OpenTracing tracer implementation
+OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer), 
+
+# if not included, defaults to False
+OPENTRACING_TRACE_ALL = False, 
+
+# defaults to []
+# only valid if OPENTRACING_TRACE_ALL == True
+OPENTRACING_TRACED_ATTRIBUTES = ['arg1', 'arg2'] 
 ```
 
 Note: Valid request attributes to trace are listed [here](https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpRequest). When you trace an attribute, this means that created spans will have tags with the attribute name and the request's value.
