@@ -11,6 +11,7 @@ setup(
     name='django_opentracing',
     version='0.1',
     url='https://github.com/kcamenzind/django_opentracing/',
+    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1'
     license='MIT',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
