@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name='django_opentracing',
-    version='0.1.4',
+    version='0.1.0',
     url='https://github.com/kcamenzind/django_opentracing/',
-    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.4',
+    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.0',
     license='MIT',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
