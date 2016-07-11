@@ -1,27 +1,20 @@
 from setuptools import setup
 
-'''
-Django-OpenTracing
------------------
-
-This extension provides simple integration of OpenTracing in Django applications.
-'''
-
 setup(
     name='django_opentracing',
-    version='0.1',
+    version='0.1.4',
     url='https://github.com/kcamenzind/django_opentracing/',
-    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1',
+    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.4',
     license='MIT',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
     description='OpenTracing support for Django applications',
-    long_description=__doc__,
+    long_description=open('README.rst').read(),
     packages=['django_opentracing'],
     platforms='any',
     install_requires=[
         'django',
-        'opentracing >= 2.0.0.dev0' # enter something about version requirement
+        'opentracing >= 2.0.0.dev0'
     ],
     classifiers=[
         'Environment :: Web Environment',
