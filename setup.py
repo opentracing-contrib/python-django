@@ -21,7 +21,7 @@ setup(
     platforms='any',
     install_requires=[
         'django',
-        'opentracing >= 2.0.0' # enter something about version requirement
+        'opentracing >= 2.0.0.dev0' # enter something about version requirement
     ],
     classifiers=[
         'Environment :: Web Environment',
