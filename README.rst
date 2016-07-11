@@ -2,14 +2,14 @@
 Django Opentracing
 ##################
 
-This is an extension for Django that provides support for OpenTracing. In order to use this package, ensure that have `opentracing` installed and are able to instantiate some implementation of an OpenTracing tracer. 
+This is an extension for Django that provides support for OpenTracing. In order to use this package, ensure that you have `opentracing` installed and are able to instantiate some implementation of an OpenTracing tracer. 
 
 Installation
 ============
 
 Run the following command::
 
-    $ pip install Django-OpenTracing
+    $ pip install django_opentracing
 
 Setting up Tracing
 ==================
