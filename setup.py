@@ -11,7 +11,7 @@ setup(
     name='django_opentracing',
     version='0.1',
     url='https://github.com/kcamenzind/django_opentracing/',
-    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1'
+    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1',
     license='MIT',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
@@ -23,7 +23,6 @@ setup(
         'django',
         'opentracing >= 2.0.0' # enter something about version requirement
     ],
-    extras_require=['lightstep']
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

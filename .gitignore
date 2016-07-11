@@ -1,2 +1,7 @@
 *.pyc
-.pypirc
+dist
+bin
+eggs
+lib
+*.egg-info
+build
