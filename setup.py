@@ -5,7 +5,7 @@ setup(
     version='0.1.0',
     url='https://github.com/kcamenzind/django_opentracing/',
     download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.0',
-    license='MIT',
+    license='BSD',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
     description='OpenTracing support for Django applications',
