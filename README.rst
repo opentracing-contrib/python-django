@@ -8,7 +8,7 @@ As core services and libraries adopt OpenTracing, the application builder is no 
 
 If you want to learn more about the underlying python API, visit the python `source code`_.
 
-.. _OpenTracing: http://opentracing.io/
+.. _The OpenTracing Project: http://opentracing.io/
 .. _source code: https://github.com/opentracing/opentracing-python
 
 Installation
