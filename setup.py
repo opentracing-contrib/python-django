@@ -1,10 +1,11 @@
 from setuptools import setup
 
+version = '0.1.1'
 setup(
     name='django_opentracing',
-    version='0.1.1',
-    url='https://github.com/kcamenzind/django_opentracing/',
-    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.1',
+    version=version,
+    url='https://github.com/opentracing-contrib/python-django/',
+    download_url='https://github.com/opentracing-contrib/python-django/tarball/'+version,
     license='BSD',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
@@ -14,7 +15,7 @@ setup(
     platforms='any',
     install_requires=[
         'django',
-        'opentracing >= 2.0.0.dev0'
+        'opentracing >= 2.0.0.dev1'
     ],
     classifiers=[
         'Environment :: Web Environment',
