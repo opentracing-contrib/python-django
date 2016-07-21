@@ -2,15 +2,15 @@ from setuptools import setup
 
 setup(
     name='django_opentracing',
-    version='0.1.0',
+    version='0.1.1',
     url='https://github.com/kcamenzind/django_opentracing/',
-    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.0',
+    download_url='https://github.com/kcamenzind/django_opentracing/tarball/0.1.1',
     license='BSD',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
     description='OpenTracing support for Django applications',
     long_description=open('README.rst').read(),
-    packages=['django_opentracing'],
+    packages=['django_opentracing', 'tests'],
     platforms='any',
     install_requires=[
         'django',

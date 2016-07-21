@@ -20,7 +20,7 @@ class OpenTracingMiddleware(object):
         # determine whether this middleware should be applied
         # NOTE: if tracing is on but not tracing all requests, then the tracing occurs
         # through decorator functions rather than middleware
-        if not hasattr(settings, 'OPENTRACING_TRACED_ALL') or not getattr(settings, 'OPENTRACING_TRACED_ALL'):
+        if not hasattr(settings, 'OPENTRACING_TRACE_ALL') or not getattr(settings, 'OPENTRACING_TRACE_ALL'):
             return None
 
         if hasattr(settings, 'OPENTRACING_TRACED_ATTRIBUTES'):

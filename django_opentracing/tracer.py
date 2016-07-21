@@ -25,11 +25,10 @@ class DjangoTracer(object):
         (strings) to be set as tags on the created span
         '''
         def decorator(view_func):
-            # if tracing all requests, then we ignore these decorators
             # TODO: do we want to provide option of overriding trace_all_requests so that they 
             # can trace certain attributes of the request for just this request (this would require
             # to reinstate the name-mangling with a trace identifier, and another settings key)
-            if settings.OPENTRACING_TRACE_ALL:
+            if hasattr(settings, 'OPENTRACING_TRACE_ALL') and getattr(settings, 'OPENTRACING_TRACE_ALL'):
                 return view_func
             # otherwise, execute decorator
             def wrapper(request):
@@ -46,7 +45,6 @@ class DjangoTracer(object):
         Returns a new span from the request with logged attributes and 
         correct operation name from the view_func.
         '''
-
         # strip headers for trace info
         headers = {}
         for k,v in request.META.iteritems():
@@ -60,11 +58,11 @@ class DjangoTracer(object):
         operation_name = view_func.__name__
         try:
             span_ctx = self._tracer.extract(opentracing.Format.TEXT_MAP, headers)
-            span = self._tracer.start_span(operation_name=operation_name, references=opentracing.ChildOf(span_ctx))
+            span = self._tracer.start_span(operation_name=operation_name, references=opentracing.child_of(span_ctx))
         except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
-            span = self._tracer.start_span(operation_name=operation_name, tags={"Extract failed": str(e)})
+            span = self._tracer.start_span(operation_name=operation_name)
         if span is None:
-            span = self._tracer.start_span(operation_name)
+            span = self._tracer.start_span(operation_name=operation_name)
 
         # add span to current spans 
         self._current_spans[request] = span

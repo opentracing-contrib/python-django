@@ -11,7 +11,7 @@ tracer = settings.OPENTRACING_TRACER
 def server_index(request):
     return HttpResponse("Hello, world. You're at the server index.")
 
-@tracer.trace()
+@tracer.trace('method')
 def server_simple(request):
     return HttpResponse("This is a simple traced request.")
 
@@ -26,6 +26,6 @@ def server_log(request):
 def server_child_span(request):
     span = tracer.get_span(request)
     if span is not None:
-        child_span = tracer._tracer.start_span("child span", opentracing.ChildOf(span.context))
+        child_span = tracer._tracer.start_span("child span", opentracing.child_of(span.context))
         child_span.finish()
     return HttpResponse("A child span was created")

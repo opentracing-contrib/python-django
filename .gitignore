@@ -5,4 +5,3 @@ eggs
 lib
 *.egg-info
 build
-example/lightstep/*

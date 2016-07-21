@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-
+import sys
 import lightstep.tracer
 import django_opentracing
 
