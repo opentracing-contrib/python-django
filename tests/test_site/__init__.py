@@ -1,1 +1,1 @@
-import test_django_opentracing
+import test_middleware

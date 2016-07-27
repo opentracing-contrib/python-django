@@ -9,6 +9,12 @@ class DjangoTracer(object):
     def __init__(self, tracer):
         self._tracer = tracer
         self._current_spans = {}
+        if not hasattr(settings, 'OPENTRACING_TRACE_ALL'):
+            self._trace_all = False
+        elif not getattr(settings, 'OPENTRACING_TRACE_ALL'):
+            self._trace_all = False
+        else:
+            self._trace_all = True
 
     def get_span(self, request): 
         '''
@@ -28,7 +34,7 @@ class DjangoTracer(object):
             # TODO: do we want to provide option of overriding trace_all_requests so that they 
             # can trace certain attributes of the request for just this request (this would require
             # to reinstate the name-mangling with a trace identifier, and another settings key)
-            if hasattr(settings, 'OPENTRACING_TRACE_ALL') and getattr(settings, 'OPENTRACING_TRACE_ALL'):
+            if self._trace_all:
                 return view_func
             # otherwise, execute decorator
             def wrapper(request):
@@ -57,8 +63,8 @@ class DjangoTracer(object):
         span = None
         operation_name = view_func.__name__
         try:
-            span_ctx = self._tracer.extract(opentracing.Format.TEXT_MAP, headers)
-            span = self._tracer.start_span(operation_name=operation_name, references=opentracing.child_of(span_ctx))
+            span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
+            span = self._tracer.start_span(operation_name=operation_name, child_of=span_ctx)
         except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
             span = self._tracer.start_span(operation_name=operation_name)
         if span is None:

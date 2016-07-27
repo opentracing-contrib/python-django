@@ -26,6 +26,6 @@ def server_log(request):
 def server_child_span(request):
     span = tracer.get_span(request)
     if span is not None:
-        child_span = tracer._tracer.start_span("child span", opentracing.child_of(span.context))
+        child_span = tracer._tracer.start_span("child span", child_of=span.context)
         child_span.finish()
     return HttpResponse("A child span was created")

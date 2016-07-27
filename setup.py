@@ -1,6 +1,6 @@
 from setuptools import setup
 
-version = '0.1.6'
+version = open('VERSION').read()
 setup(
     name='django_opentracing',
     version=version,
@@ -15,12 +15,12 @@ setup(
     platforms='any',
     install_requires=[
         'django',
-        'opentracing >= 2.0.0.dev1'
+        'opentracing >= 2.0.0.dev3'
     ],
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
