@@ -15,7 +15,7 @@ setup(
     platforms='any',
     install_requires=[
         'django',
-        'opentracing>=1.1<1.2'
+        'opentracing>=1.1,<1.2'
     ],
     classifiers=[
         'Environment :: Web Environment',
