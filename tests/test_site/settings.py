@@ -74,8 +74,14 @@ WSGI_APPLICATION = 'test_site.wsgi.application'
 
 # OpenTracing settings
 
+import appdash
+from appdash.sockcollector import RemoteCollector
+
+collector = RemoteCollector(debug=True)
+collector.connect(host="localhost", port=7701)
+tracer = appdash.create_new_tracer(collector)
+tracer.register_required_propagators()
+
 OPENTRACING_TRACE_ALL = True
-OPENTRACING_TRACER = django_opentracing.DjangoTracer(opentracing.Tracer())
+OPENTRACING_TRACER = django_opentracing.DjangoTracer(tracer)
 OPENTRACING_TRACED_ATTRIBUTES = ['META', 'FAKE_ATTRIBUTE']
-
-
