@@ -1,11 +1,18 @@
 from django.conf import settings 
 import opentracing
+try:
+    # Django >= 1.10
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    # Not required for Django <= 1.9, see:
+    # https://docs.djangoproject.com/en/1.10/topics/http/middleware/#upgrading-pre-django-1-10-style-middleware
+    MiddlewareMixin = object
 
-class OpenTracingMiddleware(object):
+class OpenTracingMiddleware(MiddlewareMixin):
     '''
     __init__() is only called once, no arguments, when the Web server responds to the first request
     '''
-    def __init__(self):
+    def __init__(self, get_response=None):
         '''
         TODO: ANSWER Qs
         - Is it better to place all tracing info in the settings file, or to require a tracing.py file with configurations?
@@ -32,3 +39,4 @@ class OpenTracingMiddleware(object):
     def process_response(self, request, response):
         self._tracer._finish_tracing(request)
         return response
+
