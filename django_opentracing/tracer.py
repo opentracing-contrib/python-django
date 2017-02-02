@@ -23,6 +23,8 @@ class DjangoTracer(object):
         else:
             self._trace_all = True
 
+        self.hooks = getattr(settings, 'OPENTRACING_HOOKS', {})
+
     def get_span(self, request):
         '''
         @param request
@@ -93,9 +95,18 @@ class DjangoTracer(object):
                 if payload:
                     span.set_tag(attr, payload)
 
+        start_hook = self.hooks.get('start')
+        if start_hook and callable(start_hook):
+            start_hook(span)
+
         return span
 
     def _finish_tracing(self, request):
         span = self._current_spans.pop(request, None)
+
+        finish_hook = self.hooks.get('finish')
+        if finish_hook and callable(finish_hook):
+            finish_hook(span=span)
+
         if span is not None:
             span.finish()
