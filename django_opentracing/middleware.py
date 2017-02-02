@@ -1,4 +1,4 @@
-from django.conf import settings 
+from django.conf import settings
 import opentracing
 try:
     # Django >= 1.10
@@ -19,7 +19,7 @@ class OpenTracingMiddleware(MiddlewareMixin):
         - Also, better to have try/catch with empty tracer or just fail fast if there's no tracer specified
         '''
         if hasattr(settings, 'OPENTRACING_TRACER'):
-            self._tracer = settings.OPENTRACING_TRACER 
+            self._tracer = settings.OPENTRACING_TRACER
         else:
             self._tracer = opentracing.Tracer()
 
