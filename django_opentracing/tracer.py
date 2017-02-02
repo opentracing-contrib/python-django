@@ -1,5 +1,12 @@
 from django.conf import settings
 import opentracing
+from opentracing.ext import tags as ot_tags
+
+
+SERVER_SPAN_TAGS = {
+    ot_tags.SPAN_KIND: ot_tags.SPAN_KIND_RPC_SERVER
+}
+
 
 class DjangoTracer(object):
     '''
@@ -62,13 +69,19 @@ class DjangoTracer(object):
         # start new span from trace info
         span = None
         operation_name = view_func.__name__
+        tags = SERVER_SPAN_TAGS.copy()
+        tags[ot_tags.HTTP_METHOD] = request.method
+        tags[ot_tags.HTTP_URL] = request.build_absolute_uri()
         try:
             span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
-            span = self._tracer.start_span(operation_name=operation_name, child_of=span_ctx)
+            span = self._tracer.start_span(operation_name=operation_name,
+                                           child_of=span_ctx, tags=tags)
         except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
-            span = self._tracer.start_span(operation_name=operation_name)
+            span = self._tracer.start_span(operation_name=operation_name,
+                                           tags=tags)
         if span is None:
-            span = self._tracer.start_span(operation_name=operation_name)
+            span = self._tracer.start_span(operation_name=operation_name,
+                                           tags=tags)
 
         # add span to current spans
         self._current_spans[request] = span
