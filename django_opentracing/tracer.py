@@ -40,14 +40,17 @@ class DjangoTracer(object):
         (strings) to be set as tags on the created span
         '''
         def decorator(view_func):
-            # TODO: do we want to provide option of overriding trace_all_requests so that they
-            # can trace certain attributes of the request for just this request (this would require
-            # to reinstate the name-mangling with a trace identifier, and another settings key)
+            # TODO: do we want to provide option of overriding
+            # trace_all_requests so that they can trace certain attributes of
+            # the request for just this request (this would require to
+            # reinstate the name-mangling with a trace identifier, and another
+            # settings key)
             if self._trace_all:
                 return view_func
+
             # otherwise, execute decorator
             def wrapper(request):
-                span = self._apply_tracing(request, view_func, list(attributes))
+                self._apply_tracing(request, view_func, list(attributes))
                 r = view_func(request)
                 self._finish_tracing(request)
                 return r
@@ -62,8 +65,8 @@ class DjangoTracer(object):
         '''
         # strip headers for trace info
         headers = {}
-        for k,v in request.META.iteritems():
-            k = k.lower().replace('_','-')
+        for k, v in request.META.iteritems():
+            k = k.lower().replace('_', '-')
             if k.startswith('http-'):
                 k = k[5:]
             headers[k] = v
@@ -78,7 +81,8 @@ class DjangoTracer(object):
             span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
             span = self._tracer.start_span(operation_name=operation_name,
                                            child_of=span_ctx, tags=tags)
-        except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
+        except (opentracing.InvalidCarrierException,
+                opentracing.SpanContextCorruptedException):
             span = self._tracer.start_span(operation_name=operation_name,
                                            tags=tags)
         if span is None:
