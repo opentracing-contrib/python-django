@@ -85,9 +85,6 @@ class DjangoTracer(object):
             span = self._tracer.start_span(operation_name=operation_name,
                                            tags=tags)
 
-        # add span to current spans
-        self._current_spans[request] = span
-
         # log any traced attributes
         for attr in attributes:
             if hasattr(request, attr):
@@ -96,17 +93,18 @@ class DjangoTracer(object):
                     span.set_tag(attr, payload)
 
         start_hook = self.hooks.get('start')
-        if start_hook and callable(start_hook):
-            start_hook(span)
+        if start_hook and callable(start_hook) and start_hook(span):
+            return span
+
+        # add span to current spans
+        self._current_spans[request] = span
 
         return span
 
     def _finish_tracing(self, request):
         span = self._current_spans.pop(request, None)
-
         finish_hook = self.hooks.get('finish')
-        if finish_hook and callable(finish_hook):
-            finish_hook(span=span)
-
-        if span is not None:
+        if finish_hook and callable(finish_hook) and finish_hook(span=span):
+            return
+        if span:
             span.finish()
