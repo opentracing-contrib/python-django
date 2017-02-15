@@ -100,6 +100,42 @@ If you want to make an RPC and continue an existing trace, you can inject the cu
             request.add_header(k,v)
         ... # make request
 
+Using tracing hooks
+===================
+
+You can specify start/finish hooks to be called whenever the middleware
+creates/finishes a new Span.  They can act as an integration point to interact
+with the spans handled by this Django middleware.  They are python callables
+and can be provided via the django settings using the `OPENTRACING_HOOKS`
+options. For example:
+
+.. code-block:: python
+
+    OPENTRACING_HOOKS = {'start': start_hook, 'finish': finish_hook}
+
+
+- The start hook expects the newly created span as argument.
+- The finish_hook expects the span that is ready to be finished.
+
+Any of them can be omitted.
+
+A hook can return a 'True' value and let the middleware know that it should not
+handle the Span.
+
+- If the 'start_hook' returns true, then the middleware does not keep
+  any reference to the Span.
+
+- If the 'finish_hook' returns true, then the middleware does not try
+  to finish the span in hands.
+  Note that based on the return value of the start hook, a reference to
+  a Span for the given request may not even exist, but the finish hook
+  will be called with a `None` argument.
+
+This can be used with an external Span manager and enable advanced scenarios
+(e.g. the Span manager accumulates and report spans in batches for performance
+reasons).
+
+
 Example
 =======
 
