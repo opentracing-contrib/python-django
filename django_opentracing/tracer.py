@@ -1,12 +1,26 @@
 from django.conf import settings
 import opentracing
 
+django_tracer = None
+
+def get_tracer():
+    return opentracing.tracer
+
+def get_current_span(request):
+    # this lets django rest framework work seamlessly since they wrap the request
+    if hasattr(request, '_request'):
+        request = _request
+    return django_tracer.get_span(request)
+
+
 class DjangoTracer(object):
     '''
     @param tracer the OpenTracing tracer to be used
     to trace requests using this DjangoTracer
     '''
     def __init__(self, tracer):
+        global django_tracer
+        django_tracer = self
         self._tracer = tracer
         self._current_spans = {}
         if not hasattr(settings, 'OPENTRACING_TRACE_ALL'):
@@ -16,9 +30,9 @@ class DjangoTracer(object):
         else:
             self._trace_all = True
 
-    def get_span(self, request): 
+    def get_span(self, request):
         '''
-        @param request 
+        @param request
         Returns the span tracing this request
         '''
         return self._current_spans.get(request, None)
@@ -57,7 +71,7 @@ class DjangoTracer(object):
             k = k.lower().replace('_','-')
             if k.startswith('http-'):
                 k = k[5:]
-            headers[k] = v              
+            headers[k] = v
 
         # start new span from trace info
         span = None
@@ -79,10 +93,9 @@ class DjangoTracer(object):
                 payload = str(getattr(request, attr))
                 if payload:
                     span.set_tag(attr, payload)
-        
-        return span  
+        return span
 
     def _finish_tracing(self, request):
-        span = self._current_spans.pop(request, None)     
+        span = self._current_spans.pop(request, None)
         if span is not None:
             span.finish()
