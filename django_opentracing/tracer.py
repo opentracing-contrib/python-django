@@ -10,7 +10,10 @@ def get_current_span(request):
     # this lets django rest framework work seamlessly since they wrap the request
     if hasattr(request, '_request'):
         request = request._request
-    return django_tracer.get_span(request)
+    if django_tracer != None:
+        return django_tracer.get_span(request)
+    else:
+        return None
 
 
 class DjangoTracer(object):
