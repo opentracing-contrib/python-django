@@ -19,6 +19,7 @@ class OpenTracingMiddleware(MiddlewareMixin):
         - Is it better to place all tracing info in the settings file, or to require a tracing.py file with configurations?
         - Also, better to have try/catch with empty tracer or just fail fast if there's no tracer specified
         '''
+        self.get_response = get_response
         if hasattr(settings, 'OPENTRACING_TRACER'):
             self._tracer = settings.OPENTRACING_TRACER 
         else:
