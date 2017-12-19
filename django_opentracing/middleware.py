@@ -1,4 +1,5 @@
 from django.conf import settings 
+from django_opentracing.tracer import DjangoTracer
 import opentracing
 try:
     # Django >= 1.10
@@ -21,7 +22,7 @@ class OpenTracingMiddleware(MiddlewareMixin):
         if hasattr(settings, 'OPENTRACING_TRACER'):
             self._tracer = settings.OPENTRACING_TRACER 
         else:
-            self._tracer = opentracing.Tracer()
+            self._tracer = DjangoTracer(opentracing.Tracer())
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         # determine whether this middleware should be applied
