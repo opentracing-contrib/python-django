@@ -1,6 +1,5 @@
-from django.conf import settings 
-from django_opentracing.tracer import DjangoTracer
-import opentracing
+from django.conf import settings
+from django_opentracing.tracer import initialize_global_tracer, DjangoTracer
 try:
     # Django >= 1.10
     from django.utils.deprecation import MiddlewareMixin
@@ -20,10 +19,8 @@ class OpenTracingMiddleware(MiddlewareMixin):
         - Also, better to have try/catch with empty tracer or just fail fast if there's no tracer specified
         '''
         self.get_response = get_response
-        if hasattr(settings, 'OPENTRACING_TRACER'):
-            self._tracer = settings.OPENTRACING_TRACER 
-        else:
-            self._tracer = DjangoTracer(opentracing.Tracer())
+        initialize_global_tracer()
+        self._tracer = DjangoTracer()
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         # determine whether this middleware should be applied
