@@ -118,6 +118,7 @@ def initialize_global_tracer():
             tracer_callable = getattr(settings, 'OPENTRACING_TRACER_CALLABLE', 'opentracing.Tracer')
             tracer_parameters = getattr(settings, 'OPENTRACING_TRACER_PARAMETERS', {})
             opentracing.tracer = import_string(tracer_callable)(**tracer_parameters)
+            settings.OPENTRACING_TRACER = DjangoTracer()
         initialize_global_tracer.complete = True
 
 
