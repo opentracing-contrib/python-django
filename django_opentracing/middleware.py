@@ -1,5 +1,5 @@
-from django.conf import settings 
-import opentracing
+from django.conf import settings
+from django_opentracing.tracer import initialize_global_tracer
 try:
     # Django >= 1.10
     from django.utils.deprecation import MiddlewareMixin
@@ -18,10 +18,9 @@ class OpenTracingMiddleware(MiddlewareMixin):
         - Is it better to place all tracing info in the settings file, or to require a tracing.py file with configurations?
         - Also, better to have try/catch with empty tracer or just fail fast if there's no tracer specified
         '''
-        if hasattr(settings, 'OPENTRACING_TRACER'):
-            self._tracer = settings.OPENTRACING_TRACER 
-        else:
-            self._tracer = opentracing.Tracer()
+        self.get_response = get_response
+        initialize_global_tracer()
+        self._tracer = settings.OPENTRACING_TRACER
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         # determine whether this middleware should be applied

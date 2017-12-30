@@ -37,6 +37,18 @@ In order to implement tracing in your system, add the following lines of code to
     # only valid if OPENTRACING_TRACE_ALL == True
     OPENTRACING_TRACED_ATTRIBUTES = ['arg1', 'arg2'],
 
+    # Callable that returns an `opentracing.Tracer` implementation.
+    OPENTRACING_TRACER_CALLABLE = 'opentracing.Tracer'
+
+    # Parameters for the callable (Depending on the tracer implementation chosen)
+    OPENTRACING_TRACER_PARAMETERS = {
+        'example-parameter-host': 'collector',
+    }
+
+If you want to directly override the `DjangoTracer` used, you can use the following. This may cause import loops (See #10)
+
+.. code-block:: python
+
     # some_opentracing_tracer can be any valid OpenTracing tracer implementation
     OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer), 
 
