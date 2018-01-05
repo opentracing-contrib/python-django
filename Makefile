@@ -1,4 +1,4 @@
-.PHONY: test publish install clean clean-build clean-pyc clean-test build upload-docs
+.PHONY: test publish install clean clean-build clean-pyc clean-test build
 
 install: 
 	python setup.py install
@@ -30,20 +30,3 @@ test:
 
 build: 
 	python setup.py build
-
-upload-docs:
-	python setup.py build_sphinx
-	python setup.py upload_docs
-
-publish: clean test build
-	@git diff-index --quiet HEAD || (echo "git has uncommitted changes. Refusing to publish." && false)
-	git describe --tags --abbrev=0 | awk 'BEGIN { FS = "." }; { printf("%d.%d.%d", $$1, $$2, $$3+1) }' VERSION.incr
-	git tag `cat VERSION.incr`
-	rm VERSION.incr
-	git push
-	git push --tags
-	python setup.py register -r pypi || (echo "Was unable to register to pypi, aborting publish." && false)
-	python setup.py sdist upload -r pypi || (echo "Was unable to upload to pypi, publish failed." && false)
-	@echo
-	@echo "\033[92mSUCCESS: published v`cat VERSION` \033[0m"
-	@echo
