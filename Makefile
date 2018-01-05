@@ -37,11 +37,9 @@ upload-docs:
 
 publish: clean test build
 	@git diff-index --quiet HEAD || (echo "git has uncommitted changes. Refusing to publish." && false)
-	awk 'BEGIN { FS = "." }; { printf("%d.%d.%d", $$1, $$2, $$3+1) }' VERSION > VERSION.incr
-	mv VERSION.incr VERSION
-	git add VERSION
-	git commit -m "Update VERSION"
-	git tag `cat VERSION`
+	git describe --tags --abbrev=0 | awk 'BEGIN { FS = "." }; { printf("%d.%d.%d", $$1, $$2, $$3+1) }' VERSION.incr
+	git tag `cat VERSION.incr`
+	rm VERSION.incr
 	git push
 	git push --tags
 	python setup.py register -r pypi || (echo "Was unable to register to pypi, aborting publish." && false)
