@@ -1,0 +1,23 @@
+---
+language: python
+git:
+  depth: 50 # Need old commits for determining version of untagged builds
+matrix:
+  include:
+  - python: 2.7
+    env: DJANGO=1.11.9
+install:
+- pip install Django==$DJANGO
+- pip install -e .
+script:
+- make test
+deploy:
+  provider: pypi
+  user: opentracing-contrib
+  distributions: bdist_wheel sdist
+  on:
+    all_branches: true
+    repo: opentracing-contrib/python-django
+    tags: true
+  password:
+    secure: GIpAnuIDYwVIi+I93Ap2ePy8JNCaxvzyyixQP5iVySD8QP6qXdJOODKrB/Ut3ME79Q0t4m9PVbiSvNpL3t2GA0ZuQOGKUHhIowdTpCWJthszGhrYCs8t2b01B7/a3Bq1WyggYlNdW1no1BC+UqlAAbNl2UxWmUgIJz9H5bK4qYdnKyUG9OdoJR++bokynqs4L6d9Bf8xOJDj4HxWcrqENXVWkYXwD55M4i6ytQ0CfBfSmJJ47QsafKHRr1KVr/yeP4bhqfhn0trGxf80XluyPlsYNkpMTBedZe2ftSmH9GAu8unL3JxRUL0xyDgTLG3HOySC1fIqSU6E6px8N2VhiKHOWn0YCVBANwFiflVlhyUGTmsInDYwS15du0GDYUv10tAivXNVIG3vFjyHCLnPPrO7M1kmB2zgUfcI4bhsxwdqWK0tPXGXG3lITQ4O7d8Tghy1Agh5WdSxcwyPXp3iNhJEL0s8ODAmVM9/1obem7tee6bpXKo8RKQD/VCxeAVZeFL7hqKDEPM1ULrCdD7Yi3KiJgdA8kzI82RX1KL//yLj9RvfwUlJlp6hTLfiIJjSa5O0p8/EmC0FuJ5GHIjhgdzW2GjBBQs+yNhblTk5nTbVP+XhXXIAcGyd7TMSkfOjA/D4X0jSHZeda7LKnC+DYV5pzpfqaCTBh5IJbM+ivH8=

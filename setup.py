@@ -1,8 +1,10 @@
 from setuptools import setup
+import versioneer
 
-version = open('VERSION').read()
+version=versioneer.get_version()
 setup(
     name='django_opentracing',
+    cmdclass=versioneer.get_cmdclass(),
     version=version,
     url='https://github.com/opentracing-contrib/python-django/',
     download_url='https://github.com/opentracing-contrib/python-django/tarball/'+version,
