@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
+from future.utils import listitems
 
 import opentracing
 import urllib2
@@ -51,6 +52,6 @@ def client_child_span(request):
 def inject_as_headers(tracer, span, request):
     text_carrier = {}
     tracer._tracer.inject(span.context, opentracing.Format.TEXT_MAP, text_carrier)
-    for k, v in text_carrier.iteritems():
+    for k, v in listitmes(text_carrier):
         request.add_header(k,v)
 
