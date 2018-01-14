@@ -6,3 +6,4 @@ lib
 *.egg-info
 build
 env/
+.idea/
