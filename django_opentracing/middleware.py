@@ -39,3 +39,9 @@ class OpenTracingMiddleware(MiddlewareMixin):
         self._tracer._finish_tracing(request)
         return response
 
+    def process_exception(self, request, exception):
+        span = self._tracer.get_span(request)
+        if span is not None:
+            span.set_tag('error', unicode(exception))
+            span.set_tag('error.type', unicode(exception.__class__.__name__))
+            span.finish()
