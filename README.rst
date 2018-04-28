@@ -2,7 +2,7 @@
 Django Opentracing
 ##################
 
-This package enables distributed tracing in Django projects via `The OpenTracing Project`_. Once a production system contends with real concurrency or splits into many services, crucial (and formerly easy) tasks become difficult: user-facing latency optimization, root-cause analysis of backend errors, communication about distinct pieces of a now-distributed system, etc. Distributed tracing follows a request on its journey from inception to completion from mobile/browser all the way to the microservices. 
+This package enables distributed tracing in Django projects via `The OpenTracing Project`_. Once a production system contends with real concurrency or splits into many services, crucial (and formerly easy) tasks become difficult: user-facing latency optimization, root-cause analysis of backend errors, communication about distinct pieces of a now-distributed system, etc. Distributed tracing follows a request on its journey from inception to completion from mobile/browser all the way to the microservices.
 
 As core services and libraries adopt OpenTracing, the application builder is no longer burdened with the task of adding basic tracing instrumentation to their own code. In this way, developers can build their applications with the tools they prefer and benefit from built-in tracing instrumentation. OpenTracing implementations exist for major distributed tracing systems and can be bound or swapped with a one-line configuration change.
 
@@ -31,7 +31,7 @@ In order to implement tracing in your system, add the following lines of code to
 
     # if not included, defaults to False
     # has to come before OPENTRACING_TRACER setting because python...
-    OPENTRACING_TRACE_ALL = False, 
+    OPENTRACING_TRACE_ALL = False,
 
     # defaults to []
     # only valid if OPENTRACING_TRACE_ALL == True
@@ -50,7 +50,7 @@ If you want to directly override the `DjangoTracer` used, you can use the follow
 .. code-block:: python
 
     # some_opentracing_tracer can be any valid OpenTracing tracer implementation
-    OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer), 
+    OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer),
 
 **Note:** Valid request attributes to trace are listed [here](https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpRequest). When you trace an attribute, this means that created spans will have tags with the attribute name and the request's value.
 
@@ -88,7 +88,7 @@ This tracing method doesn't use middleware, so there's no need to add it to your
 
 The optional arguments allow for tracing of request attributes. For example, if you want to trace metadata, you could pass in `@tracer.trace('META')` and request.META would be set as a tag on all spans for this view function.
 
-**Note:** If you turn on `OPENTRACING_TRACE_ALL`, this decorator will be ignored, including any traced request attributes. 
+**Note:** If you turn on `OPENTRACING_TRACE_ALL`, this decorator will be ignored, including any traced request attributes.
 
 Accessing Spans Manually
 ========================
@@ -101,6 +101,7 @@ Tracing an RPC
 If you want to make an RPC and continue an existing trace, you can inject the current span into the RPC. For example, if making an http request, the following code will continue your trace across the wire:
 
 .. code-block:: python
+    from future.utils import iteritems # For python3 compatibility
 
     @tracer.trace()
     def some_view_func(request):
@@ -108,7 +109,7 @@ If you want to make an RPC and continue an existing trace, you can inject the cu
         current_span = tracer.get_span(request)
         text_carrier = {}
         opentracing_tracer.inject(span, opentracing.Format.TEXT_MAP, text_carrier)
-        for k, v in text_carrier.iteritems():
+        for k, v in text_iteritems(carrier):
             request.add_header(k,v)
         ... # make request
 

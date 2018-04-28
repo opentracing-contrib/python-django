@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
+from future.utils import iteritems
 import opentracing
 import threading
 
@@ -27,9 +28,9 @@ class DjangoTracer(object):
         else:
             return opentracing.tracer
 
-    def get_span(self, request): 
+    def get_span(self, request):
         '''
-        @param request 
+        @param request
         Returns the span tracing this request
         '''
         return self._current_spans.get(request, None)
@@ -42,7 +43,7 @@ class DjangoTracer(object):
         (strings) to be set as tags on the created span
         '''
         def decorator(view_func):
-            # TODO: do we want to provide option of overriding trace_all_requests so that they 
+            # TODO: do we want to provide option of overriding trace_all_requests so that they
             # can trace certain attributes of the request for just this request (this would require
             # to reinstate the name-mangling with a trace identifier, and another settings key)
             if self._trace_all:
@@ -59,16 +60,16 @@ class DjangoTracer(object):
     def _apply_tracing(self, request, view_func, attributes):
         '''
         Helper function to avoid rewriting for middleware and decorator.
-        Returns a new span from the request with logged attributes and 
+        Returns a new span from the request with logged attributes and
         correct operation name from the view_func.
         '''
         # strip headers for trace info
         headers = {}
-        for k,v in request.META.iteritems():
+        for k,v in iteritems(request.META):
             k = k.lower().replace('_','-')
             if k.startswith('http-'):
                 k = k[5:]
-            headers[k] = v              
+            headers[k] = v
 
         # start new span from trace info
         span = None
@@ -81,7 +82,7 @@ class DjangoTracer(object):
         if span is None:
             span = self._tracer.start_span(operation_name=operation_name)
 
-        # add span to current spans 
+        # add span to current spans
         self._current_spans[request] = span
 
         # log any traced attributes
@@ -90,11 +91,11 @@ class DjangoTracer(object):
                 payload = str(getattr(request, attr))
                 if payload:
                     span.set_tag(attr, payload)
-        
-        return span  
+
+        return span
 
     def _finish_tracing(self, request):
-        span = self._current_spans.pop(request, None)     
+        span = self._current_spans.pop(request, None)
         if span is not None:
             span.finish()
 
