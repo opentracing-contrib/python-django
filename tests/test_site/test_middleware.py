@@ -20,4 +20,3 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         response = client.get('/traced_with_attrs/')
         assert response['numspans'] == '1'
         assert len(settings.OPENTRACING_TRACER._current_spans) == 0
-
