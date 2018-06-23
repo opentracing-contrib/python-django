@@ -66,7 +66,6 @@ Tracing all requests uses the middleware django_opentracing.OpenTracingMiddlewar
     MIDDLEWARE_CLASSES = [
         'django_opentracing.OpenTracingMiddleware',
         ... # other middleware classes
-        ...
         ]
 
 Tracing Individual Requests
@@ -82,7 +81,7 @@ If you don't want to trace all requests to your site, then you can use function 
 
     @tracer.trace(optional_args)
     def some_view_func(request):
-        ... #do some stuff
+        ... # do some stuff
 
 This tracing method doesn't use middleware, so there's no need to add it to your settings.py file.
 
