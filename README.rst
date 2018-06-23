@@ -14,6 +14,8 @@ If you want to learn more about the underlying python API, visit the python `sou
 Installation
 ============
 
+> Currently, only Django version 1.x is supported. Pull requests are welcome for Django 2.x support.
+
 Run the following command::
 
     $ pip install django_opentracing
