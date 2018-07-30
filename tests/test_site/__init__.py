@@ -1,1 +1,1 @@
-import test_middleware
+from . import test_middleware

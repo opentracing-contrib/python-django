@@ -14,6 +14,8 @@ If you want to learn more about the underlying python API, visit the python `sou
 Installation
 ============
 
+> Currently, only Django version 1.x is supported. Pull requests are welcome for Django 2.x support.
+
 Run the following command::
 
     $ pip install django_opentracing
@@ -108,7 +110,7 @@ If you want to make an RPC and continue an existing trace, you can inject the cu
         current_span = tracer.get_span(request)
         text_carrier = {}
         opentracing_tracer.inject(span, opentracing.Format.TEXT_MAP, text_carrier)
-        for k, v in text_carrier.iteritems():
+        for k, v in text_carrier.items():
             request.add_header(k,v)
         ... # make request
 

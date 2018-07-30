@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 import opentracing
+import six
 import threading
 
 class DjangoTracer(object):
@@ -64,7 +65,7 @@ class DjangoTracer(object):
         '''
         # strip headers for trace info
         headers = {}
-        for k,v in request.META.iteritems():
+        for k,v in six.iteritems(request.META):
             k = k.lower().replace('_','-')
             if k.startswith('http-'):
                 k = k[5:]
