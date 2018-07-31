@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 import opentracing
 import six
-import threading
+
 
 class DjangoTracer(object):
     '''
@@ -98,30 +98,3 @@ class DjangoTracer(object):
         span = self._current_spans.pop(request, None)     
         if span is not None:
             span.finish()
-
-
-def initialize_global_tracer():
-    '''
-    Initialisation as per https://github.com/opentracing/opentracing-python/blob/9f9ef02d4ef7863fb26d3534a38ccdccf245494c/opentracing/__init__.py#L36
-
-    Here the global tracer object gets initialised once from Django settings.
-    '''
-    # Short circuit without taking a lock
-    if initialize_global_tracer.complete:
-        return
-    with initialize_global_tracer.lock:
-        if initialize_global_tracer.complete:
-            return
-        if hasattr(settings, 'OPENTRACING_TRACER'):
-            # Backwards compatibility with the old way of defining the tracer
-            opentracing.tracer = settings.OPENTRACING_TRACER._tracer
-        else:
-            tracer_callable = getattr(settings, 'OPENTRACING_TRACER_CALLABLE', 'opentracing.Tracer')
-            tracer_parameters = getattr(settings, 'OPENTRACING_TRACER_PARAMETERS', {})
-            opentracing.tracer = import_string(tracer_callable)(**tracer_parameters)
-            settings.OPENTRACING_TRACER = DjangoTracer()
-        initialize_global_tracer.complete = True
-
-
-initialize_global_tracer.lock = threading.Lock()
-initialize_global_tracer.complete = False
