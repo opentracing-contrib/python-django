@@ -106,6 +106,9 @@ def initialize_global_tracer():
 
     Here the global tracer object gets initialised once from Django settings.
     '''
+    if not getattr(settings, 'OPENTRACING_SET_GLOBAL_TRACER', False):
+        return
+
     # Short circuit without taking a lock
     if initialize_global_tracer.complete:
         return
