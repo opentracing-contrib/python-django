@@ -17,7 +17,7 @@ setup(
     platforms='any',
     install_requires=[
         'django<2',
-        'opentracing>=1.1,<1.2',
+        'opentracing>=2.0,<2.1',
         'six',
     ],
     classifiers=[

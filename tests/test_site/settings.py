@@ -14,6 +14,7 @@ import os
 import sys
 import django_opentracing
 import opentracing
+from opentracing.mocktracer import MockTracer
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -75,7 +76,7 @@ WSGI_APPLICATION = 'test_site.wsgi.application'
 # OpenTracing settings
 
 OPENTRACING_TRACE_ALL = True
-OPENTRACING_TRACER = django_opentracing.DjangoTracer(opentracing.Tracer())
+OPENTRACING_TRACER = django_opentracing.DjangoTracer(MockTracer())
 OPENTRACING_TRACED_ATTRIBUTES = ['META', 'FAKE_ATTRIBUTE']
 
 

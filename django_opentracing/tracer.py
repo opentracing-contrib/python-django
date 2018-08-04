@@ -13,7 +13,7 @@ class DjangoTracer(object):
         self._tracer_implementation = None
         if tracer:
             self._tracer_implementation = tracer
-        self._current_spans = {}
+        self._current_scopes = {}
         if not hasattr(settings, 'OPENTRACING_TRACE_ALL'):
             self._trace_all = False
         elif not getattr(settings, 'OPENTRACING_TRACE_ALL'):
@@ -33,7 +33,8 @@ class DjangoTracer(object):
         @param request 
         Returns the span tracing this request
         '''
-        return self._current_spans.get(request, None)
+        scope = self._current_scopes.get(request, None)
+        return None if scope is None else scope.span
 
     def trace(self, *attributes):
         '''
@@ -50,7 +51,7 @@ class DjangoTracer(object):
                 return view_func
             # otherwise, execute decorator
             def wrapper(request):
-                span = self._apply_tracing(request, view_func, list(attributes))
+                self._apply_tracing(request, view_func, list(attributes))
                 r = view_func(request)
                 self._finish_tracing(request)
                 return r
@@ -72,32 +73,31 @@ class DjangoTracer(object):
             headers[k] = v              
 
         # start new span from trace info
-        span = None
         operation_name = view_func.__name__
         try:
-            span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
-            span = self._tracer.start_span(operation_name=operation_name, child_of=span_ctx)
+            span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS,
+                                            headers)
+            scope = self._tracer.start_active_span(operation_name,
+                                                  child_of=span_ctx)
         except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
-            span = self._tracer.start_span(operation_name=operation_name)
-        if span is None:
-            span = self._tracer.start_span(operation_name=operation_name)
+            scope = self._tracer.start_active_span(operation_name)
 
         # add span to current spans 
-        self._current_spans[request] = span
+        self._current_scopes[request] = scope
 
         # log any traced attributes
         for attr in attributes:
             if hasattr(request, attr):
                 payload = str(getattr(request, attr))
                 if payload:
-                    span.set_tag(attr, payload)
+                    scope.span.set_tag(attr, payload)
         
-        return span  
+        return scope
 
     def _finish_tracing(self, request):
-        span = self._current_spans.pop(request, None)     
-        if span is not None:
-            span.finish()
+        scope = self._current_scopes.pop(request, None)
+        if scope is not None:
+            scope.close()
 
 
 def initialize_global_tracer():
