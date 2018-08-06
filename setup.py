@@ -20,6 +20,11 @@ setup(
         'opentracing>=2.0,<2.1',
         'six',
     ],
+    extras_require={
+        'tests': [
+            'coverage',
+        ],
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
