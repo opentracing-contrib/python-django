@@ -7,10 +7,10 @@ matrix:
   - python: 2.7
     env: DJANGO=1.11.9
 install:
-- pip install Django==$DJANGO
-- pip install -e .
+  - pip install Django==$DJANGO
+  - make bootstrap
 script:
-- make test
+  - make test
 deploy:
   provider: pypi
   user: opentracing-contrib

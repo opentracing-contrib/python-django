@@ -1,7 +1,17 @@
 .PHONY: test publish install clean clean-build clean-pyc clean-test build
 
-install: 
+install:
+	pip install -r requirements.txt
+	pip install -r requirements-test.txt
 	python setup.py install
+
+check-virtual-env:
+	@echo virtual-env: $${VIRTUAL_ENV?"Please run in virtual-env"}
+
+bootstrap: check-virtual-env
+	pip install -r requirements.txt
+	pip install -r requirements-test.txt
+	python setup.py develop
 
 clean: clean-build clean-pyc clean-test
 
