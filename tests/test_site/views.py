@@ -20,6 +20,10 @@ def traced_func(request):
     response['numspans'] = currentSpanCount 
     return response
 
+@tracer.trace()
+def traced_func_with_error(request):
+    raise ValueError('key')
+
 def untraced_func(request):
     currentSpanCount = len(settings.OPENTRACING_TRACER._current_scopes)
     response = HttpResponse()

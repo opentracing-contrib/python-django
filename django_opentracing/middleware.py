@@ -35,6 +35,9 @@ class OpenTracingMiddleware(MiddlewareMixin):
             traced_attributes = []
         self._tracer._apply_tracing(request, view_func, traced_attributes)
 
+    def process_exception(self, request, exception):
+        self._tracer._finish_tracing(request, error=exception)
+
     def process_response(self, request, response):
         self._tracer._finish_tracing(request)
         return response

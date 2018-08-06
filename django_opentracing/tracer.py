@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 import opentracing
+from opentracing.ext import tags
 import six
 import threading
 
@@ -94,10 +95,19 @@ class DjangoTracer(object):
         
         return scope
 
-    def _finish_tracing(self, request):
+    def _finish_tracing(self, request, error=None):
         scope = self._current_scopes.pop(request, None)
-        if scope is not None:
-            scope.close()
+        if scope is None:
+            return
+
+        if error is not None:
+            scope.span.set_tag(tags.ERROR, True)
+            scope.span.log_kv({
+                'event': tags.ERROR,
+                'error.object': error,
+            })
+
+        scope.close()
 
 
 def initialize_global_tracer():
