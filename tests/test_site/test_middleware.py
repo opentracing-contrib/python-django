@@ -20,6 +20,16 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         assert response['numspans'] == '1'
         assert len(settings.OPENTRACING_TRACER._current_scopes) == 0
 
+    def test_middleware_traced_tags(self):
+        client = Client()
+        client.get('/traced/')
+
+        spans = settings.OPENTRACING_TRACER._tracer.finished_spans()
+        assert len(spans) == 1
+        assert spans[0].tags.get(tags.COMPONENT, None) == 'django'
+        assert spans[0].tags.get(tags.HTTP_METHOD, None) == 'GET'
+        assert spans[0].tags.get(tags.HTTP_STATUS_CODE, None) == 200
+
     def test_middleware_traced_with_attrs(self):
         client = Client()
         response = client.get('/traced_with_attrs/')

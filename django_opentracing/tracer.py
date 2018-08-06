@@ -86,6 +86,11 @@ class DjangoTracer(object):
         # add span to current spans 
         self._current_scopes[request] = scope
 
+        # standard tags
+        scope.span.set_tag(tags.COMPONENT, 'django')
+        scope.span.set_tag(tags.HTTP_METHOD, request.method)
+        scope.span.set_tag(tags.HTTP_URL, request.get_full_path())
+
         # log any traced attributes
         for attr in attributes:
             if hasattr(request, attr):
@@ -95,7 +100,7 @@ class DjangoTracer(object):
         
         return scope
 
-    def _finish_tracing(self, request, error=None):
+    def _finish_tracing(self, request, response=None, error=None):
         scope = self._current_scopes.pop(request, None)
         if scope is None:
             return
@@ -106,6 +111,8 @@ class DjangoTracer(object):
                 'event': tags.ERROR,
                 'error.object': error,
             })
+        if response is not None:
+            scope.span.set_tag(tags.HTTP_STATUS_CODE, response.status_code)
 
         scope.close()
 
