@@ -23,11 +23,16 @@ class DjangoTracer(object):
             self._trace_all = True
 
     @property
-    def _tracer(self):
+    def tracer(self):
         if self._tracer_implementation:
             return self._tracer_implementation
         else:
             return opentracing.tracer
+
+    @property
+    def _tracer(self):
+        '''DEPRECATED'''
+        return self.tracer
 
     def get_span(self, request): 
         '''
