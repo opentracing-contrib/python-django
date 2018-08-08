@@ -17,15 +17,11 @@ def server_simple(request):
 
 @tracer.trace()
 def server_log(request):
-    span = tracer.get_span(request)
-    if span is not None:
-        span.log_event("Hello, world!")
+    tracer.tracer.active_span.log_event("Hello, world!")
     return HttpResponse("Something was logged")
 
 @tracer.trace()
 def server_child_span(request):
-    span = tracer.get_span(request)
-    if span is not None:
-        child_span = tracer._tracer.start_span("child span", child_of=span.context)
-        child_span.finish()
+    child_span = tracer.tracer.start_active_span("child span")
+    child_span.finish()
     return HttpResponse("A child span was created")
