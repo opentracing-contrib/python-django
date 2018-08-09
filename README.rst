@@ -33,11 +33,11 @@ In order to implement tracing in your system, add the following lines of code to
 
     # if not included, defaults to False
     # has to come before OPENTRACING_TRACER setting because python...
-    OPENTRACING_TRACE_ALL = False, 
+    OPENTRACING_TRACE_ALL = False
 
     # defaults to []
     # only valid if OPENTRACING_TRACE_ALL == True
-    OPENTRACING_TRACED_ATTRIBUTES = ['arg1', 'arg2'],
+    OPENTRACING_TRACED_ATTRIBUTES = ['arg1', 'arg2']
 
     # Callable that returns an `opentracing.Tracer` implementation.
     OPENTRACING_TRACER_CALLABLE = 'opentracing.Tracer'
@@ -52,7 +52,7 @@ If you want to directly override the `DjangoTracer` used, you can use the follow
 .. code-block:: python
 
     # some_opentracing_tracer can be any valid OpenTracing tracer implementation
-    OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer), 
+    OPENTRACING_TRACER = django_opentracing.DjangoTracer(some_opentracing_tracer)
 
 **Note:** Valid request attributes to trace are listed [here](https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpRequest). When you trace an attribute, this means that created spans will have tags with the attribute name and the request's value.
 
@@ -68,8 +68,7 @@ Tracing all requests uses the middleware django_opentracing.OpenTracingMiddlewar
     MIDDLEWARE_CLASSES = [
         'django_opentracing.OpenTracingMiddleware',
         ... # other middleware classes
-        ...
-        ]
+    ]
 
 Tracing Individual Requests
 ===========================
@@ -84,7 +83,7 @@ If you don't want to trace all requests to your site, then you can use function 
 
     @tracer.trace(optional_args)
     def some_view_func(request):
-        ... #do some stuff
+        ... # do some stuff
 
 This tracing method doesn't use middleware, so there's no need to add it to your settings.py file.
 
