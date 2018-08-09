@@ -1,3 +1,5 @@
+project := django_opentracing
+
 .PHONY: test publish install clean clean-build clean-pyc clean-test build
 
 install:
@@ -34,6 +36,10 @@ clean-test:
 	rm -f .coverage
 	rm -f coverage.xml
 	rm -fr htmlcov/
+
+lint:
+	# Ignore single/double quotes related errors, as Django uses them extensively.
+	flake8 --ignore=Q000,Q002 $(project)
 
 test: 
 	make -C tests test

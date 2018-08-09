@@ -5,6 +5,7 @@ from opentracing.ext import tags
 import six
 import threading
 
+
 class DjangoTracer(object):
     '''
     @param tracer the OpenTracing tracer to be used
@@ -34,9 +35,9 @@ class DjangoTracer(object):
         '''DEPRECATED'''
         return self.tracer
 
-    def get_span(self, request): 
+    def get_span(self, request):
         '''
-        @param request 
+        @param request
         Returns the span tracing this request
         '''
         scope = self._current_scopes.get(request, None)
@@ -50,11 +51,14 @@ class DjangoTracer(object):
         (strings) to be set as tags on the created span
         '''
         def decorator(view_func):
-            # TODO: do we want to provide option of overriding trace_all_requests so that they 
-            # can trace certain attributes of the request for just this request (this would require
-            # to reinstate the name-mangling with a trace identifier, and another settings key)
+            # TODO: do we want to provide option of overriding
+            # trace_all_requests so that they can trace certain attributes
+            # of the request for just this request (this would require to
+            # reinstate the name-mangling with a trace identifier, and another
+            # settings key)
             if self._trace_all:
                 return view_func
+
             # otherwise, execute decorator
             def wrapper(request):
                 self._apply_tracing(request, view_func, list(attributes))
@@ -67,16 +71,16 @@ class DjangoTracer(object):
     def _apply_tracing(self, request, view_func, attributes):
         '''
         Helper function to avoid rewriting for middleware and decorator.
-        Returns a new span from the request with logged attributes and 
+        Returns a new span from the request with logged attributes and
         correct operation name from the view_func.
         '''
         # strip headers for trace info
         headers = {}
-        for k,v in six.iteritems(request.META):
-            k = k.lower().replace('_','-')
+        for k, v in six.iteritems(request.META):
+            k = k.lower().replace('_', '-')
             if k.startswith('http-'):
                 k = k[5:]
-            headers[k] = v              
+            headers[k] = v
 
         # start new span from trace info
         operation_name = view_func.__name__
@@ -84,11 +88,12 @@ class DjangoTracer(object):
             span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS,
                                             headers)
             scope = self._tracer.start_active_span(operation_name,
-                                                  child_of=span_ctx)
-        except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
+                                                   child_of=span_ctx)
+        except (opentracing.InvalidCarrierException,
+                opentracing.SpanContextCorruptedException):
             scope = self._tracer.start_active_span(operation_name)
 
-        # add span to current spans 
+        # add span to current spans
         self._current_scopes[request] = scope
 
         # standard tags
@@ -102,7 +107,7 @@ class DjangoTracer(object):
                 payload = str(getattr(request, attr))
                 if payload:
                     scope.span.set_tag(attr, payload)
-        
+
         return scope
 
     def _finish_tracing(self, request, response=None, error=None):
@@ -124,7 +129,7 @@ class DjangoTracer(object):
 
 def initialize_global_tracer():
     '''
-    Initialisation as per https://github.com/opentracing/opentracing-python/blob/9f9ef02d4ef7863fb26d3534a38ccdccf245494c/opentracing/__init__.py#L36
+    Initialisation as per https://github.com/opentracing/opentracing-python/blob/9f9ef02d4ef7863fb26d3534a38ccdccf245494c/opentracing/__init__.py#L36 # noqa
 
     Here the global tracer object gets initialised once from Django settings.
     '''
@@ -141,9 +146,14 @@ def initialize_global_tracer():
             # Backwards compatibility with the old way of defining the tracer
             opentracing.tracer = settings.OPENTRACING_TRACER._tracer
         else:
-            tracer_callable = getattr(settings, 'OPENTRACING_TRACER_CALLABLE', 'opentracing.Tracer')
-            tracer_parameters = getattr(settings, 'OPENTRACING_TRACER_PARAMETERS', {})
-            opentracing.tracer = import_string(tracer_callable)(**tracer_parameters)
+            tracer_callable = getattr(settings,
+                                      'OPENTRACING_TRACER_CALLABLE',
+                                      'opentracing.Tracer')
+            tracer_parameters = getattr(settings,
+                                        'OPENTRACING_TRACER_PARAMETERS',
+                                        {})
+            tracer = import_string(tracer_callable)(**tracer_parameters)
+            opentracing.tracer = tracer
             settings.OPENTRACING_TRACER = DjangoTracer()
         initialize_global_tracer.complete = True
 
