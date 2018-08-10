@@ -7,6 +7,8 @@ matrix:
   include:
   - python: 2.7
   - python: 3.4
+  - python: 2.7 # Old Middleware classes
+    env: DJANGO=1.9
 install:
   - pip install Django==$DJANGO
   - make bootstrap
