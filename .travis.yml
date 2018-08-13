@@ -2,15 +2,11 @@
 language: python
 git:
   depth: 50 # Need old commits for determining version of untagged builds
-matrix:
-  include:
-  - python: 2.7
-    env: DJANGO=1.11.9
-install:
-- pip install Django==$DJANGO
-- pip install -e .
-script:
-- make test
+python:
+  - "2.7"
+  - "3.6"
+install: pip install tox-travis
+script: tox
 deploy:
   provider: pypi
   user: opentracing-contrib

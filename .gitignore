@@ -1,4 +1,6 @@
 *.pyc
+.tox
+.idea
 dist
 bin
 eggs

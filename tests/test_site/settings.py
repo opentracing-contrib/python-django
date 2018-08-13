@@ -14,6 +14,7 @@ import os
 import sys
 import django_opentracing
 import opentracing
+import django
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,14 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django_opentracing.OpenTracingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -77,5 +77,3 @@ WSGI_APPLICATION = 'test_site.wsgi.application'
 OPENTRACING_TRACE_ALL = True
 OPENTRACING_TRACER = django_opentracing.DjangoTracer(opentracing.Tracer())
 OPENTRACING_TRACED_ATTRIBUTES = ['META', 'FAKE_ATTRIBUTE']
-
-
