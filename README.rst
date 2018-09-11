@@ -14,7 +14,7 @@ If you want to learn more about the underlying python API, visit the python `sou
 Installation
 ============
 
-> Currently, only Django version 1.x is supported. Pull requests are welcome for Django 2.x support.
+> Currently, Django versions 1.x and 2.x are supported.
 
 Run the following command::
 
@@ -61,13 +61,20 @@ Tracing All Requests
 
 In order to trace all requests, set `OPENTRACING_TRACE_ALL = True`. If you want to trace any attributes for all requests, then add them to `OPENTRACING_TRACED_ATTRIBUTES`. For example, if you wanted to trace the path and method, then set `OPENTRACING_TRACED_ATTRIBUTES = ['path', 'method']`.
 
-Tracing all requests uses the middleware django_opentracing.OpenTracingMiddleware, so add this to your settings.py file's `MIDDLEWARE_CLASSES` at the top of the stack.
+Tracing all requests uses the middleware django_opentracing.OpenTracingMiddleware, so add this to your settings.py file's `MIDDLEWARE_CLASSES` at the top of the stack.  If you are using Django 1.10+, add it to your settings' `MIDDLEWARE` list.
 
 .. code-block:: python
 
     MIDDLEWARE_CLASSES = [
         'django_opentracing.OpenTracingMiddleware',
         ... # other middleware classes
+    ]
+
+    # or for Django 1.10+ (including 2.0+)
+
+    MIDDLEWARE = [
+        'django_opentracing.OpenTracingMiddleware',
+        ...
     ]
 
 Tracing Individual Requests

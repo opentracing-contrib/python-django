@@ -20,6 +20,9 @@ setup(
         'opentracing>=1.1,<1.2',
         'six',
     ],
+    extras_require={
+        'tests': ['mock'],
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
