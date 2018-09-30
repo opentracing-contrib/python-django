@@ -3,7 +3,6 @@ from django.utils.module_loading import import_string
 import opentracing
 from opentracing.ext import tags
 import six
-import threading
 
 
 class DjangoTracer(object):
@@ -136,27 +135,22 @@ def initialize_global_tracer():
     if not getattr(settings, 'OPENTRACING_SET_GLOBAL_TRACER', False):
         return
 
-    # Short circuit without taking a lock
     if initialize_global_tracer.complete:
         return
-    with initialize_global_tracer.lock:
-        if initialize_global_tracer.complete:
-            return
-        if hasattr(settings, 'OPENTRACING_TRACER'):
-            # Backwards compatibility with the old way of defining the tracer
-            opentracing.tracer = settings.OPENTRACING_TRACER._tracer
-        else:
-            tracer_callable = getattr(settings,
-                                      'OPENTRACING_TRACER_CALLABLE',
-                                      'opentracing.Tracer')
-            tracer_parameters = getattr(settings,
-                                        'OPENTRACING_TRACER_PARAMETERS',
-                                        {})
-            tracer = import_string(tracer_callable)(**tracer_parameters)
-            opentracing.tracer = tracer
-            settings.OPENTRACING_TRACER = DjangoTracer()
-        initialize_global_tracer.complete = True
 
+    if hasattr(settings, 'OPENTRACING_TRACER'):
+        # Backwards compatibility with the old way of defining the tracer
+        opentracing.tracer = settings.OPENTRACING_TRACER._tracer
+    else:
+        tracer_callable = getattr(settings,
+                                  'OPENTRACING_TRACER_CALLABLE',
+                                  'opentracing.Tracer')
+        tracer_parameters = getattr(settings,
+                                    'OPENTRACING_TRACER_PARAMETERS',
+                                    {})
+        tracer = import_string(tracer_callable)(**tracer_parameters)
+        opentracing.tracer = tracer
+        settings.OPENTRACING_TRACER = DjangoTracer()
+    initialize_global_tracer.complete = True
 
-initialize_global_tracer.lock = threading.Lock()
 initialize_global_tracer.complete = False
