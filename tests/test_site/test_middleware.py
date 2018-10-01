@@ -29,6 +29,7 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         assert spans[0].tags.get(tags.COMPONENT, None) == 'django'
         assert spans[0].tags.get(tags.HTTP_METHOD, None) == 'GET'
         assert spans[0].tags.get(tags.HTTP_STATUS_CODE, None) == 200
+        assert spans[0].tags.get(tags.SPAN_KIND, None) == tags.SPAN_KIND_RPC_SERVER
 
     def test_middleware_traced_with_attrs(self):
         client = Client()
