@@ -1,14 +1,13 @@
 from django.conf import settings
-from django.utils.module_loading import import_string
 import opentracing
 from opentracing.ext import tags
 import six
 
 
-class DjangoTracer(object):
+class DjangoTracing(object):
     '''
     @param tracer the OpenTracing tracer to be used
-    to trace requests using this DjangoTracer
+    to trace requests using this DjangoTracing
     '''
     def __init__(self, tracer=None):
         self._tracer_implementation = None
@@ -21,6 +20,9 @@ class DjangoTracer(object):
             self._trace_all = False
         else:
             self._trace_all = True
+
+    def _get_tracer_impl(self):
+        return self._tracer_implementation
 
     @property
     def tracer(self):
@@ -84,13 +86,13 @@ class DjangoTracer(object):
         # start new span from trace info
         operation_name = view_func.__name__
         try:
-            span_ctx = self._tracer.extract(opentracing.Format.HTTP_HEADERS,
-                                            headers)
-            scope = self._tracer.start_active_span(operation_name,
-                                                   child_of=span_ctx)
+            span_ctx = self.tracer.extract(opentracing.Format.HTTP_HEADERS,
+                                           headers)
+            scope = self.tracer.start_active_span(operation_name,
+                                                  child_of=span_ctx)
         except (opentracing.InvalidCarrierException,
                 opentracing.SpanContextCorruptedException):
-            scope = self._tracer.start_active_span(operation_name)
+            scope = self.tracer.start_active_span(operation_name)
 
         # add span to current spans
         self._current_scopes[request] = scope
@@ -127,31 +129,21 @@ class DjangoTracer(object):
         scope.close()
 
 
-def initialize_global_tracer():
+def initialize_global_tracer(tracing):
     '''
     Initialisation as per https://github.com/opentracing/opentracing-python/blob/9f9ef02d4ef7863fb26d3534a38ccdccf245494c/opentracing/__init__.py#L36 # noqa
 
     Here the global tracer object gets initialised once from Django settings.
     '''
-    if not getattr(settings, 'OPENTRACING_SET_GLOBAL_TRACER', False):
-        return
-
     if initialize_global_tracer.complete:
         return
 
-    if hasattr(settings, 'OPENTRACING_TRACER'):
-        # Backwards compatibility with the old way of defining the tracer
-        opentracing.tracer = settings.OPENTRACING_TRACER._tracer
-    else:
-        tracer_callable = getattr(settings,
-                                  'OPENTRACING_TRACER_CALLABLE',
-                                  'opentracing.Tracer')
-        tracer_parameters = getattr(settings,
-                                    'OPENTRACING_TRACER_PARAMETERS',
-                                    {})
-        tracer = import_string(tracer_callable)(**tracer_parameters)
+    # DjangoTracing may be already relying on the global tracer,
+    # hence check for a non-None value.
+    tracer = tracing._tracer_implementation
+    if tracer is not None:
         opentracing.tracer = tracer
-        settings.OPENTRACING_TRACER = DjangoTracer()
+
     initialize_global_tracer.complete = True
 
 initialize_global_tracer.complete = False

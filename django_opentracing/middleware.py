@@ -1,5 +1,9 @@
 from django.conf import settings
-from django_opentracing.tracer import initialize_global_tracer
+from django.utils.module_loading import import_string
+
+from .tracing import DjangoTracing
+from .tracing import initialize_global_tracer
+
 try:
     # Django >= 1.10
     from django.utils.deprecation import MiddlewareMixin
@@ -22,15 +26,41 @@ class OpenTracingMiddleware(MiddlewareMixin):
         - Also, better to have try/catch with empty tracer or just fail
           fast if there's no tracer specified
         '''
+        self._init_tracing()
+        self._tracing = settings.OPENTRACING_TRACING
         self.get_response = get_response
-        initialize_global_tracer()
-        self._tracer = settings.OPENTRACING_TRACER
+
+    def _init_tracing(self):
+        if getattr(settings, 'OPENTRACING_TRACER', None) is not None:
+            # Backwards compatibility.
+            tracing = settings.OPENTRACING_TRACER
+        elif getattr(settings, 'OPENTRACING_TRACING', None) is not None:
+            tracing = settings.OPENTRACING_TRACING
+        elif getattr(settings, 'OPENTRACING_TRACER_CALLABLE',
+                     None) is not None:
+            tracer_callable = settings.OPENTRACING_TRACER_CALLABLE
+            tracer_parameters = getattr(settings,
+                                        'OPENTRACING_TRACER_PARAMETERS',
+                                        {})
+            tracer = import_string(tracer_callable)(**tracer_parameters)
+            tracing = DjangoTracing(tracer)
+        else:
+            # Rely on the global Tracer.
+            tracing = DjangoTracing()
+
+        # Normalize the tracing field in settings, including the old field.
+        settings.OPENTRACING_TRACING = tracing
+        settings.OPENTRACING_TRACER = tracing
+
+        # Potentially set the global Tracer (unless we rely on it already).
+        if getattr(settings, 'OPENTRACING_SET_GLOBAL_TRACER', False):
+            initialize_global_tracer(tracing)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         # determine whether this middleware should be applied
         # NOTE: if tracing is on but not tracing all requests, then the tracing
         # occurs through decorator functions rather than middleware
-        if not self._tracer._trace_all:
+        if not self._tracing._trace_all:
             return None
 
         if hasattr(settings, 'OPENTRACING_TRACED_ATTRIBUTES'):
@@ -38,11 +68,11 @@ class OpenTracingMiddleware(MiddlewareMixin):
                                         'OPENTRACING_TRACED_ATTRIBUTES')
         else:
             traced_attributes = []
-        self._tracer._apply_tracing(request, view_func, traced_attributes)
+        self._tracing._apply_tracing(request, view_func, traced_attributes)
 
     def process_exception(self, request, exception):
-        self._tracer._finish_tracing(request, error=exception)
+        self._tracing._finish_tracing(request, error=exception)
 
     def process_response(self, request, response):
-        self._tracer._finish_tracing(request, response=response)
+        self._tracing._finish_tracing(request, response=response)
         return response

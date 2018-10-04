@@ -4,24 +4,24 @@ from django.conf import settings
 
 import opentracing
 
-tracer = settings.OPENTRACING_TRACER
+tracing = settings.OPENTRACING_TRACING
 
 # Create your views here.
 
 def server_index(request):
     return HttpResponse("Hello, world. You're at the server index.")
 
-@tracer.trace('method')
+@tracing.trace('method')
 def server_simple(request):
     return HttpResponse("This is a simple traced request.")
 
-@tracer.trace()
+@tracing.trace()
 def server_log(request):
-    tracer.tracer.active_span.log_event("Hello, world!")
+    tracing.tracer.active_span.log_event("Hello, world!")
     return HttpResponse("Something was logged")
 
-@tracer.trace()
+@tracing.trace()
 def server_child_span(request):
-    child_span = tracer.tracer.start_active_span("child span")
-    child_span.finish()
+    child_span = tracing.tracer.start_active_span("child span")
+    child_span.close()
     return HttpResponse("A child span was created")

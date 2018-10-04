@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'test_site.wsgi.application'
 # OpenTracing settings
 
 OPENTRACING_TRACE_ALL = True
-OPENTRACING_TRACER = django_opentracing.DjangoTracer(MockTracer())
+OPENTRACING_TRACING = django_opentracing.DjangoTracing(MockTracer())
 OPENTRACING_TRACED_ATTRIBUTES = ['META', 'FAKE_ATTRIBUTE']
 
 

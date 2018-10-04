@@ -1,30 +1,39 @@
-from django.test import SimpleTestCase, Client
+from django.test import SimpleTestCase, Client, override_settings
 from django.conf import settings
+import mock
+import opentracing
 from opentracing.ext import tags
+from opentracing.mocktracer import MockTracer
+from opentracing.scope_managers import ThreadLocalScopeManager
+
+from django_opentracing import OpenTracingMiddleware
+from django_opentracing import DjangoTracing
+from django_opentracing import DjangoTracer
+from django_opentracing.tracing import initialize_global_tracer
 
 
 class TestDjangoOpenTracingMiddleware(SimpleTestCase):
 
     def setUp(self):
-        settings.OPENTRACING_TRACER._tracer.reset()
+        settings.OPENTRACING_TRACING._tracer.reset()
 
     def test_middleware_untraced(self):
         client = Client()
         response = client.get('/untraced/')
         assert response['numspans'] == '1'
-        assert len(settings.OPENTRACING_TRACER._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
 
     def test_middleware_traced(self):
         client = Client()
         response = client.get('/traced/')
         assert response['numspans'] == '1'
-        assert len(settings.OPENTRACING_TRACER._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
 
     def test_middleware_traced_tags(self):
         client = Client()
         client.get('/traced/')
 
-        spans = settings.OPENTRACING_TRACER._tracer.finished_spans()
+        spans = settings.OPENTRACING_TRACING._tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].tags.get(tags.COMPONENT, None) == 'django'
         assert spans[0].tags.get(tags.HTTP_METHOD, None) == 'GET'
@@ -35,14 +44,14 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         client = Client()
         response = client.get('/traced_with_attrs/')
         assert response['numspans'] == '1'
-        assert len(settings.OPENTRACING_TRACER._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
 
     def test_middleware_traced_with_error(self):
         client = Client()
         with self.assertRaises(ValueError):
             client.get('/traced_with_error/')
 
-        spans = settings.OPENTRACING_TRACER._tracer.finished_spans()
+        spans = settings.OPENTRACING_TRACING._tracer.finished_spans()
         assert len(spans) == 1
         assert spans[0].tags.get(tags.ERROR, False) is True
 
@@ -58,3 +67,69 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         response = client.get('/traced_scope/')
         assert response['active_span'] is not None
         assert response['request_span'] == response['active_span']
+
+
+@override_settings()
+class TestDjangoOpenTracingMiddlewareInitialization(SimpleTestCase):
+
+    def setUp(self):
+        for m in ['OPENTRACING_TRACING',
+                  'OPENTRACING_TRACER',
+                  'OPENTRACING_TRACER_CALLABLE',
+                  'OPENTRACING_TRACER_PARAMETERS']:
+            try:
+                delattr(settings, m)
+            except AttributeError:
+                pass
+
+        initialize_global_tracer.complete = False
+
+    def test_tracer_deprecated(self):
+        tracing = DjangoTracer()
+        settings.OPENTRACING_TRACER = tracing
+        OpenTracingMiddleware()
+        assert getattr(settings, 'OPENTRACING_TRACER', None) is tracing
+        assert getattr(settings, 'OPENTRACING_TRACING', None) is tracing
+
+    def test_tracing(self):
+        tracing = DjangoTracing()
+        settings.OPENTRACING_TRACING = tracing
+        OpenTracingMiddleware()
+        assert getattr(settings, 'OPENTRACING_TRACING', None) is tracing
+
+    def test_tracer_callable(self):
+        settings.OPENTRACING_TRACER_CALLABLE = 'opentracing.mocktracer.MockTracer'
+        settings.OPENTRACING_TRACER_PARAMETERS = {
+                'scope_manager': ThreadLocalScopeManager()
+        }
+        OpenTracingMiddleware()
+        assert getattr(settings, 'OPENTRACING_TRACING', None) is not None
+        assert isinstance(settings.OPENTRACING_TRACING.tracer,
+                          opentracing.mocktracer.MockTracer)
+
+    def test_tracing_none(self):
+        OpenTracingMiddleware()
+        assert getattr(settings, 'OPENTRACING_TRACING', None) is not None
+        assert settings.OPENTRACING_TRACING.tracer is opentracing.tracer
+        assert settings.OPENTRACING_TRACING._get_tracer_impl() is None
+
+    def test_set_global_tracer(self):
+        tracer = MockTracer()
+        settings.OPENTRACING_TRACING = DjangoTracing(tracer)
+        settings.OPENTRACING_SET_GLOBAL_TRACER = True
+        with mock.patch('opentracing.tracer'):
+            OpenTracingMiddleware()
+            assert opentracing.tracer is tracer
+
+        settings.OPENTRACING_SET_GLOBAL_TRACER = False
+        with mock.patch('opentracing.tracer'):
+            OpenTracingMiddleware()
+            assert opentracing.tracer is not tracer
+
+    def test_set_global_tracer_no_tracing(self):
+        settings.OPENTRACING_SET_GLOBAL_TRACER = True
+        with mock.patch('opentracing.tracer'):
+            OpenTracingMiddleware()
+            assert getattr(settings, 'OPENTRACING_TRACING', None) is not None
+            assert settings.OPENTRACING_TRACING.tracer is opentracing.tracer
+            assert settings.OPENTRACING_TRACING._get_tracer_impl() is None

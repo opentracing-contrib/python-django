@@ -117,7 +117,7 @@ STATIC_URL = '/static/'
 # OpenTracing settings
 
 # default tracer is opentracing.Tracer(), which does nothing
-OPENTRACING_TRACER = django_opentracing.DjangoTracer(opentracing.Tracer())
+OPENTRACING_TRACING = django_opentracing.DjangoTracing()
 
 # default is False
 OPENTRACING_TRACE_ALL = False 
