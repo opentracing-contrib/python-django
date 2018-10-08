@@ -48,6 +48,13 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         assert len(settings.OPENTRACING_TRACING.tracer.finished_spans()) == 1
 
     def test_middleware_traced_tags(self):
+        self.verify_traced_tags()
+
+    @override_settings(OPENTRACING_TRACE_ALL=False)
+    def test_middleware_traced_tags_decorated(self):
+        self.verify_traced_tags()
+
+    def verify_traced_tags(self):
         client = Client()
         client.get('/traced/')
 
@@ -65,6 +72,13 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
 
     def test_middleware_traced_with_error(self):
+        self.verify_traced_with_error()
+
+    @override_settings(OPENTRACING_TRACE_ALL=False)
+    def test_middleware_traced_with_error_decorated(self):
+        self.verify_traced_with_error()
+
+    def verify_traced_with_error(self):
         client = Client()
         with self.assertRaises(ValueError):
             client.get('/traced_with_error/')

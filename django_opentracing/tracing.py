@@ -56,9 +56,14 @@ class DjangoTracing(object):
                     return view_func(request)
 
                 # otherwise, apply tracing.
-                self._apply_tracing(request, view_func, list(attributes))
-                r = view_func(request)
-                self._finish_tracing(request)
+                try:
+                    self._apply_tracing(request, view_func, list(attributes))
+                    r = view_func(request)
+                except Exception as exc:
+                    self._finish_tracing(request, error=exc)
+                    raise
+
+                self._finish_tracing(request, r)
                 return r
 
             return wrapper
