@@ -48,6 +48,9 @@ class OpenTracingMiddleware(MiddlewareMixin):
             # Rely on the global Tracer.
             tracing = DjangoTracing()
 
+        # trace_all defaults to True when used as middleware.
+        tracing._trace_all = getattr(settings, 'OPENTRACING_TRACE_ALL', True)
+
         # Normalize the tracing field in settings, including the old field.
         settings.OPENTRACING_TRACING = tracing
         settings.OPENTRACING_TRACER = tracing

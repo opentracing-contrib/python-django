@@ -22,12 +22,30 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         response = client.get('/untraced/')
         assert response['numspans'] == '1'
         assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING.tracer.finished_spans()) == 1
+
+    @override_settings(OPENTRACING_TRACE_ALL=False)
+    def test_middleware_untraced_no_trace_all(self):
+        client = Client()
+        response = client.get('/untraced/')
+        assert response['numspans'] == '0'
+        assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING.tracer.finished_spans()) == 0
 
     def test_middleware_traced(self):
         client = Client()
         response = client.get('/traced/')
         assert response['numspans'] == '1'
         assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING.tracer.finished_spans()) == 1
+
+    @override_settings(OPENTRACING_TRACE_ALL=False)
+    def test_middleware_traced_no_trace_all(self):
+        client = Client()
+        response = client.get('/traced/')
+        assert response['numspans'] == '1'
+        assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
+        assert len(settings.OPENTRACING_TRACING.tracer.finished_spans()) == 1
 
     def test_middleware_traced_tags(self):
         client = Client()

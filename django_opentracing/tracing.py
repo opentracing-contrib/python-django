@@ -1,4 +1,3 @@
-from django.conf import settings
 import opentracing
 from opentracing.ext import tags
 import six
@@ -10,16 +9,9 @@ class DjangoTracing(object):
     to trace requests using this DjangoTracing
     '''
     def __init__(self, tracer=None):
-        self._tracer_implementation = None
-        if tracer:
-            self._tracer_implementation = tracer
+        self._tracer_implementation = tracer
         self._current_scopes = {}
-        if not hasattr(settings, 'OPENTRACING_TRACE_ALL'):
-            self._trace_all = False
-        elif not getattr(settings, 'OPENTRACING_TRACE_ALL'):
-            self._trace_all = False
-        else:
-            self._trace_all = True
+        self._trace_all = False
 
     def _get_tracer_impl(self):
         return self._tracer_implementation
@@ -57,15 +49,18 @@ class DjangoTracing(object):
             # of the request for just this request (this would require to
             # reinstate the name-mangling with a trace identifier, and another
             # settings key)
-            if self._trace_all:
-                return view_func
 
-            # otherwise, execute decorator
             def wrapper(request):
+                # if tracing all already, return right away.
+                if self._trace_all:
+                    return view_func(request)
+
+                # otherwise, apply tracing.
                 self._apply_tracing(request, view_func, list(attributes))
                 r = view_func(request)
                 self._finish_tracing(request)
                 return r
+
             return wrapper
         return decorator
 
