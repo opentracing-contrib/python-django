@@ -130,14 +130,22 @@ class TestDjangoOpenTracingMiddlewareInitialization(SimpleTestCase):
         assert getattr(settings, 'OPENTRACING_TRACING', None) is tracing
 
     def test_tracer_callable(self):
+        settings.OPENTRACING_TRACER_CALLABLE = MockTracer
+        settings.OPENTRACING_TRACER_PARAMETERS = {
+                'scope_manager': ThreadLocalScopeManager()
+        }
+        OpenTracingMiddleware()
+        assert getattr(settings, 'OPENTRACING_TRACING', None) is not None
+        assert isinstance(settings.OPENTRACING_TRACING.tracer, MockTracer)
+
+    def test_tracer_callable_str(self):
         settings.OPENTRACING_TRACER_CALLABLE = 'opentracing.mocktracer.MockTracer'
         settings.OPENTRACING_TRACER_PARAMETERS = {
                 'scope_manager': ThreadLocalScopeManager()
         }
         OpenTracingMiddleware()
         assert getattr(settings, 'OPENTRACING_TRACING', None) is not None
-        assert isinstance(settings.OPENTRACING_TRACING.tracer,
-                          opentracing.mocktracer.MockTracer)
+        assert isinstance(settings.OPENTRACING_TRACING.tracer, MockTracer)
 
     def test_tracing_none(self):
         OpenTracingMiddleware()

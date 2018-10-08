@@ -42,7 +42,11 @@ class OpenTracingMiddleware(MiddlewareMixin):
             tracer_parameters = getattr(settings,
                                         'OPENTRACING_TRACER_PARAMETERS',
                                         {})
-            tracer = import_string(tracer_callable)(**tracer_parameters)
+
+            if not callable(tracer_callable):
+                tracer_callable = import_string(tracer_callable)
+
+            tracer = tracer_callable(**tracer_parameters)
             tracing = DjangoTracing(tracer)
         else:
             # Rely on the global Tracer.
