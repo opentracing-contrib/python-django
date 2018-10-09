@@ -8,8 +8,12 @@ class DjangoTracing(object):
     @param tracer the OpenTracing tracer to be used
     to trace requests using this DjangoTracing
     '''
-    def __init__(self, tracer=None):
+    def __init__(self, tracer=None, start_span_cb=None):
+        if start_span_cb is not None and not callable(start_span_cb):
+            raise ValueError('start_span_cb is not callable')
+
         self._tracer_implementation = tracer
+        self._start_span_cb = start_span_cb
         self._current_scopes = {}
         self._trace_all = False
 
@@ -110,6 +114,9 @@ class DjangoTracing(object):
                 if payload:
                     scope.span.set_tag(attr, payload)
 
+        # invoke the start span callback, if any
+        self._call_start_span_cb(scope.span, request)
+
         return scope
 
     def _finish_tracing(self, request, response=None, error=None):
@@ -127,6 +134,15 @@ class DjangoTracing(object):
             scope.span.set_tag(tags.HTTP_STATUS_CODE, response.status_code)
 
         scope.close()
+
+    def _call_start_span_cb(self, span, request):
+        if self._start_span_cb is None:
+            return
+
+        try:
+            self._start_span_cb(span, request)
+        except Exception:
+            pass
 
 
 def initialize_global_tracer(tracing):

@@ -55,6 +55,10 @@ class OpenTracingMiddleware(MiddlewareMixin):
         # trace_all defaults to True when used as middleware.
         tracing._trace_all = getattr(settings, 'OPENTRACING_TRACE_ALL', True)
 
+        # set the start_span_cb hook, if any.
+        tracing._start_span_cb = getattr(settings, 'OPENTRACING_START_SPAN_CB',
+                                         None)
+
         # Normalize the tracing field in settings, including the old field.
         settings.OPENTRACING_TRACING = tracing
         settings.OPENTRACING_TRACER = tracing

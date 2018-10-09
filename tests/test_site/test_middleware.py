@@ -12,6 +12,13 @@ from django_opentracing import DjangoTracer
 from django_opentracing.tracing import initialize_global_tracer
 
 
+def start_span_cb(span, request):
+    span.set_tag(tags.COMPONENT, 'customvalue')
+
+
+def start_span_cb_error(span, request):
+    raise RuntimeError()
+
 class TestDjangoOpenTracingMiddleware(SimpleTestCase):
 
     def setUp(self):
@@ -93,6 +100,23 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
                 spans[0].logs[0].key_values.get('error.object', None),
                 ValueError
         )
+
+    @override_settings(OPENTRACING_START_SPAN_CB=start_span_cb)
+    def test_middleware_traced_start_span_cb(self):
+        client = Client()
+        client.get('/traced/')
+
+        spans = settings.OPENTRACING_TRACING._tracer.finished_spans()
+        assert len(spans) == 1
+        assert spans[0].tags.get(tags.COMPONENT, None) is 'customvalue'
+
+    @override_settings(OPENTRACING_START_SPAN_CB=start_span_cb_error)
+    def test_middleware_traced_start_span_cb_error(self):
+        client = Client()
+        client.get('/traced/')
+
+        spans = settings.OPENTRACING_TRACING._tracer.finished_spans()
+        assert len(spans) == 1 # Span finished properly.
 
     def test_middleware_traced_scope(self):
         client = Client()
