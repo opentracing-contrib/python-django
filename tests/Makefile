@@ -9,4 +9,4 @@ clean:
 	find . -name '__pycache__' -exec rm -fr {} +
 
 test: clean
-	coverage run --source='$(project)' manage.py test && coverage report -m
+	coverage run --source='$(project)' --omit='*_version.py' manage.py test && coverage report -m
