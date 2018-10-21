@@ -1,8 +1,8 @@
 from django.test import SimpleTestCase, Client
 from django.conf import settings
 
-class TestDjangoOpenTracingMiddleware(SimpleTestCase):
 
+class TestDjangoOpenTracingMiddleware(SimpleTestCase):
     def test_middleware_untraced(self):
         client = Client()
         response = client.get('/untraced/')

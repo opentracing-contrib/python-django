@@ -1,5 +1,6 @@
 from django.conf import settings
 from django_opentracing.tracer import initialize_global_tracer
+
 try:
     # Django >= 1.10
     from django.utils.deprecation import MiddlewareMixin
@@ -8,10 +9,12 @@ except ImportError:
     # https://docs.djangoproject.com/en/1.10/topics/http/middleware/#upgrading-pre-django-1-10-style-middleware
     MiddlewareMixin = object
 
+
 class OpenTracingMiddleware(MiddlewareMixin):
-    '''
+    """
     __init__() is only called once, no arguments, when the Web server responds to the first request
-    '''
+    """
+
     def __init__(self, get_response=None):
         '''
         TODO: ANSWER Qs
@@ -31,11 +34,10 @@ class OpenTracingMiddleware(MiddlewareMixin):
 
         if hasattr(settings, 'OPENTRACING_TRACED_ATTRIBUTES'):
             traced_attributes = getattr(settings, 'OPENTRACING_TRACED_ATTRIBUTES')
-        else: 
+        else:
             traced_attributes = []
         self._tracer._apply_tracing(request, view_func, traced_attributes)
 
     def process_response(self, request, response):
         self._tracer._finish_tracing(request)
         return response
-
