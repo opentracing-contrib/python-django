@@ -1,13 +1,13 @@
 from setuptools import setup
 import versioneer
 
-version=versioneer.get_version()
+version = versioneer.get_version()
 setup(
     name='django_opentracing',
     cmdclass=versioneer.get_cmdclass(),
     version=version,
     url='https://github.com/opentracing-contrib/python-django/',
-    download_url='https://github.com/opentracing-contrib/python-django/tarball/'+version,
+    download_url='https://github.com/opentracing-contrib/python-django/tarball/' + version,
     license='BSD',
     author='Kathy Camenzind',
     author_email='kcamenzind@lightstep.com',
@@ -17,7 +17,7 @@ setup(
     platforms='any',
     install_requires=[
         'django<2',
-        'opentracing>=1.1,<1.2',
+        'opentracing>=1.1,<2',
         'six',
     ],
     classifiers=[
