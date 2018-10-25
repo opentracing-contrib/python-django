@@ -9,6 +9,8 @@ matrix:
   - python: 3.4
   - python: 2.7 # Old Middleware classes
     env: DJANGO=1.9
+  - python: 3.4 # Django 2 support
+    env: DJANGO==2.0
 install:
   - pip install Django==$DJANGO
   - make bootstrap
