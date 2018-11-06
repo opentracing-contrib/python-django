@@ -1,4 +1,3 @@
----
 language: python
 git:
   depth: 50 # Need old commits for determining version of untagged builds
@@ -13,11 +12,11 @@ script:
 - make test
 deploy:
   provider: pypi
-  user: opentracing-contrib
+  user: calberto.cortez
   distributions: bdist_wheel sdist
   on:
     all_branches: true
     repo: opentracing-contrib/python-django
     tags: true
   password:
-    secure: GIpAnuIDYwVIi+I93Ap2ePy8JNCaxvzyyixQP5iVySD8QP6qXdJOODKrB/Ut3ME79Q0t4m9PVbiSvNpL3t2GA0ZuQOGKUHhIowdTpCWJthszGhrYCs8t2b01B7/a3Bq1WyggYlNdW1no1BC+UqlAAbNl2UxWmUgIJz9H5bK4qYdnKyUG9OdoJR++bokynqs4L6d9Bf8xOJDj4HxWcrqENXVWkYXwD55M4i6ytQ0CfBfSmJJ47QsafKHRr1KVr/yeP4bhqfhn0trGxf80XluyPlsYNkpMTBedZe2ftSmH9GAu8unL3JxRUL0xyDgTLG3HOySC1fIqSU6E6px8N2VhiKHOWn0YCVBANwFiflVlhyUGTmsInDYwS15du0GDYUv10tAivXNVIG3vFjyHCLnPPrO7M1kmB2zgUfcI4bhsxwdqWK0tPXGXG3lITQ4O7d8Tghy1Agh5WdSxcwyPXp3iNhJEL0s8ODAmVM9/1obem7tee6bpXKo8RKQD/VCxeAVZeFL7hqKDEPM1ULrCdD7Yi3KiJgdA8kzI82RX1KL//yLj9RvfwUlJlp6hTLfiIJjSa5O0p8/EmC0FuJ5GHIjhgdzW2GjBBQs+yNhblTk5nTbVP+XhXXIAcGyd7TMSkfOjA/D4X0jSHZeda7LKnC+DYV5pzpfqaCTBh5IJbM+ivH8=
+    secure: T6bZrINIEbGVtuOz9Z0orWvsEG75owxVG38oO0PF+3hzTt7At3j9duoWerTlavnvnBogf9y0Q+lWE91RtJYkAfjVxCxob0fih/sfuXanlXMj+2eUZe4/jW4XqM8nRoW6/lw5zj/MLoE/fa+duK+PYRYe8vMJJpQvPfGlrJ5qKIS0EwRI2v3ISjjDhN2VXl2V1tuWSPDaZMSuJW5B2JYtNUY7dZqeRhr1icDV0qHeEGcvK8Rlxmy5WGBmzlKnvha6e0NV7t0BSCVw21q7VUnrEC+SCAqmOo12HIHQ6WCcDE4m6cFjM3LK9iFmWivmFBLLBqlQNZLH5wB8wg9cemCqMxvsNwb3hX3Iqn/ps/JBxU+d/HgTLrN0o77RN8b2sA8yLpWL2CqTV8dECbDAAKZpa0Mg/OqQA3iFNuoXvsd0oxW2TFWRFN7RmHvDHcPVtwu+MpP1fCi1F8DZM7bibH8VX/jIbsN11yXbdBvJZNBlP/ZTlOD16PqAv3fVve6Zk4oF0Ur7BrqiGF+X8dTR64cPOToojFQTm7eQvM3pLbTnCAG1bR41Qw5VIh8OFwq3eYn1WRHtu2qFMgRinz9G+3okuAHQGOWu7fuKjdEdnHdecurPzkTegXlF7xXBXOrp/wSXErO7muBdSRoU71SiNgPwjNvq8dfLSlcwNHVKdjXW6HM=
