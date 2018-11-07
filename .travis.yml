@@ -5,6 +5,8 @@ matrix:
   include:
   - python: 2.7
     env: DJANGO=1.11.9
+  - python: 3.4 # Django 2 support
+    env: DJANGO==2.0
 install:
 - pip install Django==$DJANGO
 - pip install -e .
