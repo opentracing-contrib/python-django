@@ -16,7 +16,7 @@ setup(
     packages=['django_opentracing', 'tests'],
     platforms='any',
     install_requires=[
-        'django<2',
+        'django',
         'opentracing>=1.1,<2',
         'six',
     ],
