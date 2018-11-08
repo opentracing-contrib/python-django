@@ -1,3 +1,5 @@
+project := django_opentracing
+
 .PHONY: test clean
 
 clean:
@@ -7,4 +9,4 @@ clean:
 	find . -name '__pycache__' -exec rm -fr {} +
 
 test: clean
-	python manage.py test
+	coverage run --source='$(project)' --omit='*_version.py' manage.py test && coverage report -m

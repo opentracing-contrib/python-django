@@ -1,29 +1,38 @@
 from django.http import HttpResponse
 from django.conf import settings
 
-tracer = settings.OPENTRACING_TRACER
+tracing = settings.OPENTRACING_TRACING
 
 def index(request):
     return HttpResponse("index")
 
-@tracer.trace('path', 'scheme', 'fake_setting')
+@tracing.trace('path', 'scheme', 'fake_setting')
 def traced_func_with_attrs(request):
-    currentSpanCount = len(settings.OPENTRACING_TRACER._current_spans) 
+    currentSpanCount = len(settings.OPENTRACING_TRACING._current_scopes)
     response = HttpResponse()
     response['numspans'] = currentSpanCount 
     return response
 
-@tracer.trace()
+@tracing.trace()
 def traced_func(request):
-    currentSpanCount = len(settings.OPENTRACING_TRACER._current_spans) 
+    currentSpanCount = len(settings.OPENTRACING_TRACING._current_scopes)
     response = HttpResponse()
     response['numspans'] = currentSpanCount 
     return response
+
+@tracing.trace()
+def traced_func_with_error(request):
+    raise ValueError('key')
 
 def untraced_func(request):
-    currentSpanCount = len(settings.OPENTRACING_TRACER._current_spans) 
+    currentSpanCount = len(settings.OPENTRACING_TRACING._current_scopes)
     response = HttpResponse()
     response['numspans'] = currentSpanCount 
     return response
 
-
+@tracing.trace()
+def traced_scope_func(request):
+    response = HttpResponse()
+    response['active_span'] = tracing._tracer.active_span
+    response['request_span'] = tracing.get_span(request)
+    return response

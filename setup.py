@@ -17,9 +17,17 @@ setup(
     platforms='any',
     install_requires=[
         'django',
-        'opentracing>=1.1,<2',
+        'opentracing>=2.0,<2.1',
         'six',
     ],
+    extras_require={
+        'tests': [
+            'coverage',
+            'flake8<3',  # see https://github.com/zheller/flake8-quotes/issues/29
+            'flake8-quotes',
+            'mock',
+        ],
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

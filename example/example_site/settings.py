@@ -12,8 +12,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 import sys
-import lightstep.tracer
 import django_opentracing
+import opentracing
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -117,7 +117,7 @@ STATIC_URL = '/static/'
 # OpenTracing settings
 
 # default tracer is opentracing.Tracer(), which does nothing
-OPENTRACING_TRACER = django_opentracing.DjangoTracer(lightstep.tracer.init_tracer(group_name="django_app", access_token="{your_lightstep_token}"))
+OPENTRACING_TRACING = django_opentracing.DjangoTracing()
 
 # default is False
 OPENTRACING_TRACE_ALL = False 
