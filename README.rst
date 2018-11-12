@@ -17,8 +17,6 @@ If you are migrating from the 0.x series, you may want to read the list of `brea
 Installation
 ============
 
-> Currently, only Django version 1.x is supported. Pull requests are welcome for Django 2.x support.
-
 Run the following command::
 
     $ pip install django_opentracing
