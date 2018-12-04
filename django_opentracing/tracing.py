@@ -54,7 +54,7 @@ class DjangoTracing(object):
             # reinstate the name-mangling with a trace identifier, and another
             # settings key)
 
-            def wrapper(request):
+            def wrapper(request, *args, **kwargs):
                 # if tracing all already, return right away.
                 if self._trace_all:
                     return view_func(request)
@@ -62,7 +62,7 @@ class DjangoTracing(object):
                 # otherwise, apply tracing.
                 try:
                     self._apply_tracing(request, view_func, list(attributes))
-                    r = view_func(request)
+                    r = view_func(request, *args, **kwargs)
                 except Exception as exc:
                     self._finish_tracing(request, error=exc)
                     raise

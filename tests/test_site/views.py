@@ -13,12 +13,23 @@ def traced_func_with_attrs(request):
     response['numspans'] = currentSpanCount 
     return response
 
+
 @tracing.trace()
 def traced_func(request):
     currentSpanCount = len(settings.OPENTRACING_TRACING._current_scopes)
     response = HttpResponse()
     response['numspans'] = currentSpanCount 
     return response
+
+
+@tracing.trace()
+def traced_func_with_arg(request, arg):
+    currentSpanCount = len(settings.OPENTRACING_TRACING._current_scopes)
+    response = HttpResponse()
+    response['numspans'] = currentSpanCount
+    response['arg'] = arg
+    return response
+
 
 @tracing.trace()
 def traced_func_with_error(request):

@@ -78,6 +78,14 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         assert response['numspans'] == '1'
         assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
 
+    @override_settings(OPENTRACING_TRACE_ALL=False)
+    def test_middleware_traced_with_arg_decorated(self):
+        client = Client()
+        response = client.get('/traced_with_arg/7/')
+        assert response['numspans'] == '1'
+        assert response['arg'] == '7'
+        assert len(settings.OPENTRACING_TRACING._current_scopes) == 0
+
     def test_middleware_traced_with_error(self):
         self.verify_traced_with_error()
 
