@@ -8,6 +8,7 @@ class DjangoTracing(object):
     @param tracer the OpenTracing tracer to be used
     to trace requests using this DjangoTracing
     '''
+
     def __init__(self, tracer=None, start_span_cb=None):
         if start_span_cb is not None and not callable(start_span_cb):
             raise ValueError('start_span_cb is not callable')
@@ -161,5 +162,6 @@ def initialize_global_tracer(tracing):
         opentracing.tracer = tracer
 
     initialize_global_tracer.complete = True
+
 
 initialize_global_tracer.complete = False
