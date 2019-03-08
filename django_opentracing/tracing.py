@@ -145,6 +145,18 @@ class DjangoTracing(object):
             pass
 
 
+class DjangoRestFrameworkTracing(DjangoTracing):
+    '''tracer for Django REST framework
+    '''
+    def get_span(self, request):
+        '''
+        @param request
+        Returns the span tracing this request
+        '''
+        scope = self._current_spans.get(request._request, None)
+        return None if scope is None else scope.span
+
+
 def initialize_global_tracer(tracing):
     '''
     Initialisation as per https://github.com/opentracing/opentracing-python/blob/9f9ef02d4ef7863fb26d3534a38ccdccf245494c/opentracing/__init__.py#L36 # noqa

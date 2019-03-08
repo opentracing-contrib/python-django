@@ -54,6 +54,8 @@ If you want to directly override the ``DjangoTracing`` used, you can use the fol
 
     # some_opentracing_tracer can be any valid OpenTracing tracer implementation
     OPENTRACING_TRACING = django_opentracing.DjangoTracing(some_opentracing_tracer)
+    # for Django REST framework users
+    OPENTRACING_TRACING = django_opentracing.DjangoRestFrameworkTracing(some_opentracing_tracer)
 
 **Note:** Valid request attributes to trace are listed [here](https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpRequest). When you trace an attribute, this means that created spans will have tags with the attribute name and the request's value.
 
