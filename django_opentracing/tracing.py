@@ -42,9 +42,8 @@ class DjangoTracing(object):
 
     def trace(self, *attributes):
         '''
-        Function decorator that traces functions
-        NOTE: Must be placed after the @app.route decorator
-        @param attributes any number of flask.Request attributes
+        Function decorator that traces functions such as Views
+        @param attributes any number of HttpRequest attributes
         (strings) to be set as tags on the created span
         '''
         def decorator(view_func):
