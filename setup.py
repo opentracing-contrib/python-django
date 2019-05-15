@@ -17,7 +17,7 @@ setup(
     platforms='any',
     install_requires=[
         'django',
-        'opentracing>=2.0,<2.1',
+        'opentracing>=2.0,<2.3',
         'six',
     ],
     extras_require={
