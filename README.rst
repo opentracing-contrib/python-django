@@ -57,7 +57,7 @@ If you want to directly override the ``DjangoTracing`` used, you can use the fol
 
 **Note:** Valid request attributes to trace are listed  `here`_. When you trace an attribute, this means that created spans will have tags with the attribute name and the request's value.
 
-.. _here: https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpRequest
+.. _here: https://docs.djangoproject.com/en/1.11/ref/request-response/#django.http.HttpRequest
 
 
 Tracing All Requests
