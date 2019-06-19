@@ -1,17 +1,22 @@
+dist: xenial
 language: python
 git:
   depth: 50 # Need old commits for determining version of untagged builds
-env: DJANGO=1.11.9
+env: DJANGO=1.11
 matrix:
   include:
   - python: 2.7
-  - python: 3.4
-  - python: 2.7 # Old Middleware classes
-    env: DJANGO=1.9
-  - python: 3.4 # Django 2 support
-    env: DJANGO==2.0
+  - python: 3.5
+  - python: 3.6
+  - python: 3.7
+  - python: 3.5 
+    env: DJANGO=2.2
+  - python: 3.6
+    env: DJANGO=2.2
+  - python: 3.7
+    env: DJANGO=2.2
 install:
-  - pip install Django==$DJANGO
+  - pip install Django~=${DJANGO}.0
   - make bootstrap
 script:
   - make test lint

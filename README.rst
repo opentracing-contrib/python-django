@@ -8,6 +8,12 @@ Django Opentracing
 .. image:: https://img.shields.io/pypi/v/django_opentracing.svg
     :target: https://pypi.org/project/django_opentracing/
 
+.. image:: https://img.shields.io/pypi/pyversions/django_opentracing.svg
+    :target: https://pypi.org/project/django_opentracing/
+
+.. image:: https://img.shields.io/pypi/dm/django_opentracing.svg
+    :target: https://pypi.org/project/django_opentracing/
+
 
 This package enables distributed tracing in Django projects via `The OpenTracing Project`_. Once a production system contends with real concurrency or splits into many services, crucial (and formerly easy) tasks become difficult: user-facing latency optimization, root-cause analysis of backend errors, communication about distinct pieces of a now-distributed system, etc. Distributed tracing follows a request on its journey from inception to completion from mobile/browser all the way to the microservices. 
 
