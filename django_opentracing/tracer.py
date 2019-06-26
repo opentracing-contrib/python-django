@@ -71,7 +71,7 @@ class DjangoTracer(object):
         '''
         # strip headers for trace info
         headers = {}
-        for k,v in request.META.items():
+        for k,v in list(request.META.items()):
             k = k.lower().replace('_','-')
             if k.startswith('http-'):
                 k = k[5:]
