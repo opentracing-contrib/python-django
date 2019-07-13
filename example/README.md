@@ -2,8 +2,13 @@
 
 This is an example of a Django site with tracing implemented using the django_opentracing package. To run the example, make sure you've installed package `opentracing` and the `Tracer` of your choice (Jaeger, LightStep, etc).
 
-Navigate to this directory and then run:
+Navigate to this directory and install requirements:
 
+```
+> pip install -r requirements.txt
+```
+
+Run the server:
 ```
 > python manage.py runserver 8000
 ```
