@@ -8,7 +8,7 @@ Navigate to this directory and then run:
 > python manage.py runserver 8000
 ```
 
-Open in your browser `localhost:8000/client`.
+Open in your browser `localhost:8000/client/`.
 
 ### Trace a Request and Response
 
