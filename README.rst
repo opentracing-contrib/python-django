@@ -111,7 +111,13 @@ The optional arguments allow for tracing of request attributes. For example, if 
 Accessing Spans Manually
 ========================
 
-In order to access the span for a request, we've provided an method ``DjangoTracing.get_span(request)`` that returns the span for the request, if it is exists and is not finished. This can be used to log important events to the span, set tags, or create child spans to trace non-RPC events.
+In order to access the span for a request, we've provided a method ``DjangoTracing().get_span(request)`` that returns the span for the request, if it is exists and is not finished. This can be used to log important events to the span, set tags, or create child spans to trace non-RPC events:
+
+.. code-block:: python
+
+    from django_opentracing.tracing import DjangoTracing
+    
+    DjangoTracing().get_span(request)
 
 Tracing an RPC
 ==============
