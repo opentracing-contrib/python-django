@@ -1,5 +1,9 @@
 from django.conf import settings
-from django.utils.module_loading import import_string
+try:
+    from django.utils.module_loading import import_string
+except ImportError:
+    # For django<1.7
+    from django.utils.module_loading import import_by_path as import_string
 
 from .tracing import DjangoTracing
 from .tracing import initialize_global_tracer
@@ -18,6 +22,7 @@ class OpenTracingMiddleware(MiddlewareMixin):
     __init__() is only called once, no arguments, when the Web server
     responds to the first request
     '''
+
     def __init__(self, get_response=None):
         '''
         TODO: ANSWER Qs
