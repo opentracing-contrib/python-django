@@ -77,9 +77,13 @@ class DjangoTracing(object):
             def wrapper(*args, **kwargs):
                 # check if `func' is a method or not
                 if is_method:
-                    name = type(args[0]).__name__ + '.' + name
-                with self.tracer.start_active_span(name):
-                    return func(*args, **kwargs)
+                    fname = type(args[0]).__name__ + '.' + name
+                else:
+                    fname = name
+
+                with self.tracer.start_active_span(fname):
+                    r = func(*args, **kwargs)
+                    return r
 
             return wrapper
         return decorator
