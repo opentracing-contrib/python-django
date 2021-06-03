@@ -72,6 +72,22 @@ class DjangoTracing(object):
             return wrapper
         return decorator
 
+    def another_trace(self, name, is_method=False):
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                # check if `func' is a method or not
+                if is_method:
+                    fname = type(args[0]).__name__ + '.' + name
+                else:
+                    fname = name
+
+                with self.tracer.start_active_span(fname):
+                    r = func(*args, **kwargs)
+                    return r
+
+            return wrapper
+        return decorator
+
     def _apply_tracing(self, request, view_func, attributes):
         '''
         Helper function to avoid rewriting for middleware and decorator.
