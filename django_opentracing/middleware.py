@@ -10,7 +10,19 @@ try:
 except ImportError:
     # Not required for Django <= 1.9, see:
     # https://docs.djangoproject.com/en/1.10/topics/http/middleware/#upgrading-pre-django-1-10-style-middleware
-    MiddlewareMixin = object
+    class MiddlewareMixin(object):
+        def __init__(self, get_response=None):
+            self.get_response = get_response
+
+
+def _no_response(request):
+    '''Placeholder ``get_response`` used when the middleware is built directly.
+
+    ``MiddlewareMixin`` refuses a ``None`` ``get_response``, but this
+    middleware has always been constructible with no arguments (its own
+    docstring says so, and the test suite relies on it).
+    '''
+    return None
 
 
 class OpenTracingMiddleware(MiddlewareMixin):
@@ -28,7 +40,14 @@ class OpenTracingMiddleware(MiddlewareMixin):
         '''
         self._init_tracing()
         self._tracing = settings.OPENTRACING_TRACING
-        self.get_response = get_response
+        # Delegate to MiddlewareMixin so that it can set up the attributes its
+        # own __call__ depends on (``_is_coroutine`` before Django 5.2,
+        # ``async_mode`` from 5.2 on). Setting ``get_response`` directly skips
+        # that, and Django's handler then raises AttributeError on every
+        # request. MiddlewareMixin requires a callable, so fall back to a no-op
+        # response when no get_response is supplied, which is how this
+        # middleware has always been constructible outside a request cycle.
+        super().__init__(get_response or _no_response)
 
     def _init_tracing(self):
         if getattr(settings, 'OPENTRACING_TRACER', None) is not None:

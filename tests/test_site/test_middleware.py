@@ -1,4 +1,4 @@
-from django.test import SimpleTestCase, Client, override_settings
+from django.test import SimpleTestCase, Client, RequestFactory, override_settings
 from django.conf import settings
 import mock
 import opentracing
@@ -132,6 +132,19 @@ class TestDjangoOpenTracingMiddleware(SimpleTestCase):
         assert response['active_span'] is not None
         assert response['request_span'] == response['active_span']
 
+
+    def test_init_delegates_to_middleware_mixin(self):
+        # MiddlewareMixin.__call__ relies on state that MiddlewareMixin.
+        # __init__ sets up. Setting ``get_response`` by hand instead of
+        # calling super().__init__() skipped that, so on Django 4.1 and 5.2
+        # every request through the middleware raised AttributeError.
+        # (Django 3.2 and 4.2 happen not to read the missing attribute, so
+        # they pass either way; the bug is version-specific, the fix is not.)
+        middleware = OpenTracingMiddleware()
+        request = RequestFactory().get('/untraced/')
+        # Getting through __call__ to get_response without AttributeError is
+        # what proves the mixin's __init__ ran.
+        assert middleware(request) is None
 
 @override_settings()
 class TestDjangoOpenTracingMiddlewareInitialization(SimpleTestCase):
